@@ -1,0 +1,6 @@
+node_modules/
+server/db/powerscan.db
+*.log
+.env
+.DS_Store
+Thumbs.db

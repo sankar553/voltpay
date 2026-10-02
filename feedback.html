@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PowerScan Admin – User Feedback Dashboard</title>
+  <meta name="description" content="View and manage user feedback and support inquiries for the PowerScan utility bill payment platform.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    /* Custom Admin Dashboard Specific Styles */
+    .admin-body {
+      background: var(--gray-50);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .admin-main {
+      flex: 1;
+      max-width: 1200px;
+      width: 100%;
+      margin: 100px auto 40px;
+      padding: 0 24px;
+    }
+
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .admin-title h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--blue-800), var(--blue-600));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+
+    .admin-title p {
+      color: var(--gray-500);
+      font-size: 0.95rem;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      border: 1px solid var(--gray-200);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      transition: var(--transition);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow);
+    }
+
+    .stat-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .stat-icon.blue { background: var(--blue-50); color: var(--blue-600); }
+    .stat-icon.green { background: var(--green-50); color: var(--green-500); }
+    .stat-icon.red { background: #fef2f2; color: #ef4444; }
+
+    .stat-details h3 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--gray-900);
+      line-height: 1.2;
+    }
+
+    .stat-details p {
+      font-size: 0.85rem;
+      color: var(--gray-500);
+      font-weight: 500;
+    }
+
+    /* Search and Controls Bar */
+    .controls-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      background: var(--white);
+      padding: 16px 24px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--gray-200);
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      position: relative;
+      flex: 1;
+      max-width: 400px;
+      min-width: 250px;
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray-400);
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 12px 16px 12px 44px;
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius);
+      outline: none;
+      font-family: inherit;
+      font-size: 0.95rem;
+      transition: var(--transition);
+      background: var(--gray-50);
+    }
+
+    .search-input:focus {
+      border-color: var(--blue-500);
+      background: var(--white);
+      box-shadow: 0 0 0 4px rgba(59,130,246,.1);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: var(--white);
+      border: none;
+      padding: 12px 24px;
+      border-radius: var(--radius);
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
+      transition: var(--transition);
+    }
+
+    .btn-danger:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+    }
+
+    /* Feedback Cards Grid */
+    .feedback-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 24px;
+    }
+
+    .feedback-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--gray-200);
+      padding: 24px;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      position: relative;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    .feedback-card:hover {
+      box-shadow: var(--shadow-lg);
+      border-color: var(--blue-100);
+    }
+
+    .feedback-card-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue-100), var(--blue-50));
+      color: var(--blue-700);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .user-info {
+      flex: 1;
+    }
+
+    .user-name {
+      font-weight: 700;
+      color: var(--gray-800);
+      font-size: 1rem;
+    }
+
+    .user-email {
+      font-size: 0.85rem;
+      color: var(--gray-500);
+      word-break: break-all;
+    }
+
+    .feedback-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--gray-500);
+      border-top: 1px solid var(--gray-100);
+      border-bottom: 1px solid var(--gray-100);
+      padding: 12px 0;
+      margin-bottom: 16px;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .meta-item i {
+      width: 14px;
+      text-align: center;
+    }
+
+    .feedback-message {
+      font-size: 0.95rem;
+      color: var(--gray-700);
+      line-height: 1.6;
+      flex: 1;
+      white-space: pre-line;
+    }
+
+    /* Empty state */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 80px 24px;
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      border: 1px dashed var(--gray-300);
+    }
+
+    .empty-state i {
+      font-size: 3.5rem;
+      color: var(--gray-400);
+      margin-bottom: 20px;
+    }
+
+    .empty-state h3 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin-bottom: 8px;
+    }
+
+    .empty-state p {
+      color: var(--gray-500);
+      font-size: 0.95rem;
+    }
+
+    /* Modal System */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(17, 24, 39, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 1100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-content {
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      padding: 40px;
+      max-width: 440px;
+      width: 100%;
+      box-shadow: var(--shadow-xl);
+      text-align: center;
+      transform: translateY(20px);
+      transition: transform 0.3s ease;
+    }
+
+    .modal-overlay.active .modal-content {
+      transform: translateY(0);
+    }
+
+    .modal-warning-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: #fef2f2;
+      color: #ef4444;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin: 0 auto 20px;
+    }
+
+    .modal-content h3 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--gray-900);
+      margin-bottom: 12px;
+    }
+
+    .modal-content p {
+      color: var(--gray-500);
+      font-size: 0.95rem;
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+    }
+
+    .btn-secondary-modal {
+      background: var(--gray-100);
+      color: var(--gray-700);
+      border: none;
+      padding: 12px 24px;
+      border-radius: var(--radius);
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-secondary-modal:hover {
+      background: var(--gray-200);
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--gray-900);
+      color: var(--white);
+      padding: 16px 24px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 1200;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .toast.active {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast-icon {
+      color: var(--green-400);
+    }
+  </style>
+</head>
+<body class="admin-body">
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar scrolled">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">
+        <div class="logo-icon"><i class="fas fa-bolt"></i></div>
+        <span>PowerScan</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html#features">Features</a></li>
+        <li><a href="index.html#how-it-works">How It Works</a></li>
+        <li><a href="dashboard.html">Client Dashboard</a></li>
+        <li><a href="index.html" class="nav-cta"><i class="fas fa-arrow-left"></i> Back to Site</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="admin-main">
+    
+    <div class="admin-header">
+      <div class="admin-title">
+        <h1>User Feedback Inbox</h1>
+        <p>Monitor customer suggestions, support messages, and portal feedback</p>
+      </div>
+      <div>
+        <button class="btn-danger" id="clearBtn"><i class="fas fa-trash-can"></i> Clear All Feedback</button>
+      </div>
+    </div>
+
+    <!-- ===== STATS ===== -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon blue"><i class="fas fa-envelope"></i></div>
+        <div class="stat-details">
+          <h3 id="totalCount">0</h3>
+          <p>Total Submissions</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green"><i class="fas fa-clock"></i></div>
+        <div class="stat-details">
+          <h3 id="latestTime">-</h3>
+          <p>Last Received</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red"><i class="fas fa-database"></i></div>
+        <div class="stat-details">
+          <h3>Active</h3>
+          <p>Database Connection</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CONTROLS ===== -->
+    <div class="controls-bar">
+      <div class="search-box">
+        <i class="fas fa-magnifying-glass"></i>
+        <input type="text" id="searchInput" class="search-input" placeholder="Search feedback by name, email, message...">
+      </div>
+      <div style="font-size: 0.85rem; color: var(--gray-500); font-weight: 500;" id="searchCount">
+        Showing all messages
+      </div>
+    </div>
+
+    <!-- ===== FEEDBACK GRID ===== -->
+    <div class="feedback-grid" id="feedbackGrid">
+      <div class="empty-state">
+        <i class="fas fa-spinner fa-spin"></i>
+        <h3>Loading Inbox</h3>
+        <p>Fetching messages from the PowerScan server...</p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ===== DELETE CONFIRMATION MODAL ===== -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal-content">
+      <div class="modal-warning-icon"><i class="fas fa-triangle-exclamation"></i></div>
+      <h3>Are you absolutely sure?</h3>
+      <p>This action will permanently delete all contact/feedback entries from the database. This cannot be undone.</p>
+      <div class="modal-buttons">
+        <button class="btn-secondary-modal" id="cancelModal">Cancel</button>
+        <button class="btn-danger" id="confirmClearBtn">Yes, Clear All</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TOAST NOTIFICATION ===== -->
+  <div class="toast" id="toast">
+    <i class="fas fa-circle-check toast-icon"></i>
+    <span id="toastMsg">Action completed successfully</span>
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="footer-bottom" style="border: none; padding: 0;">
+      <p>&copy; 2026 PowerScan. Admin Portal.</p>
+      <p>Vijayawada, Andhra Pradesh, India</p>
+    </div>
+  </footer>
+
+  <!-- ===== BACKEND CONNECTION SCRIPT ===== -->
+  <script>
+    const API_BASE = window.location.origin + '/api';
+    let allMessages = [];
+
+    // Elements
+    const feedbackGrid = document.getElementById('feedbackGrid');
+    const totalCountEl = document.getElementById('totalCount');
+    const latestTimeEl = document.getElementById('latestTime');
+    const searchInput = document.getElementById('searchInput');
+    const searchCountEl = document.getElementById('searchCount');
+    
+    // Clear/Reset Modal elements
+    const clearBtn = document.getElementById('clearBtn');
+    const confirmModal = document.getElementById('confirmModal');
+    const cancelModal = document.getElementById('cancelModal');
+    const confirmClearBtn = document.getElementById('confirmClearBtn');
+    
+    // Toast elements
+    const toast = document.getElementById('toast');
+    const toastMsg = document.getElementById('toastMsg');
+
+    // Show Toast Notification
+    function showToast(message, isSuccess = true) {
+      toastMsg.textContent = message;
+      const icon = toast.querySelector('i');
+      if (isSuccess) {
+        icon.className = 'fas fa-circle-check toast-icon';
+        icon.style.color = 'var(--green-400)';
+      } else {
+        icon.className = 'fas fa-circle-xmark toast-icon';
+        icon.style.color = '#ef4444';
+      }
+      toast.classList.add('active');
+      setTimeout(() => {
+        toast.classList.remove('active');
+      }, 3500);
+    }
+
+    // Format date beautifully
+    function formatDate(dateStr) {
+      if (!dateStr) return '-';
+      const date = new Date(dateStr);
+      return date.toLocaleString('en-IN', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+    }
+
+    // Get time elapsed/ago
+    function timeAgo(dateStr) {
+      if (!dateStr) return '';
+      const date = new Date(dateStr);
+      const seconds = Math.floor((new Date() - date) / 1000);
+      
+      let interval = Math.floor(seconds / 31536000);
+      if (interval >= 1) return interval + "y ago";
+      interval = Math.floor(seconds / 2592000);
+      if (interval >= 1) return interval + "mo ago";
+      interval = Math.floor(seconds / 86400);
+      if (interval >= 1) return interval + "d ago";
+      interval = Math.floor(seconds / 3600);
+      if (interval >= 1) return interval + "h ago";
+      interval = Math.floor(seconds / 60);
+      if (interval >= 1) return interval + "m ago";
+      return "just now";
+    }
+
+    // Render messages onto the grid
+    function renderFeedback(messages) {
+      if (messages.length === 0) {
+        feedbackGrid.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-folder-open"></i>
+            <h3>No Feedback Found</h3>
+            <p>Any messages sent via the contact form will show up here.</p>
+          </div>
+        `;
+        searchCountEl.textContent = 'Showing 0 messages';
+        return;
+      }
+
+      searchCountEl.textContent = `Showing ${messages.length} of ${allMessages.length} messages`;
+
+      feedbackGrid.innerHTML = messages.map(msg => {
+        const initials = msg.name ? msg.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '?';
+        return `
+          <div class="feedback-card">
+            <div class="feedback-card-header">
+              <div class="avatar">${initials}</div>
+              <div class="user-info">
+                <div class="user-name">${escapeHTML(msg.name)}</div>
+                <div class="user-email">${escapeHTML(msg.email)}</div>
+              </div>
+            </div>
+            <div class="feedback-meta">
+              <div class="meta-item">
+                <i class="fas fa-clock"></i>
+                <span>${formatDate(msg.created_at)} (${timeAgo(msg.created_at)})</span>
+              </div>
+              ${msg.phone ? `
+                <div class="meta-item">
+                  <i class="fas fa-phone"></i>
+                  <span>${escapeHTML(msg.phone)}</span>
+                </div>
+              ` : ''}
+            </div>
+            <div class="feedback-message">${escapeHTML(msg.message)}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Helper to escape HTML tags to prevent XSS
+    function escapeHTML(str) {
+      if (!str) return '';
+      return str.replace(/[&<>'"]/g, 
+        tag => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          "'": '&#39;',
+          '"': '&quot;'
+        }[tag] || tag)
+      );
+    }
+
+    // Fetch messages from backend
+    function fetchMessages() {
+      fetch(API_BASE + '/contact')
+        .then(res => {
+          if (!res.ok) throw new Error('HTTP error');
+          return res.json();
+        })
+        .then(data => {
+          allMessages = data.messages || [];
+          totalCountEl.textContent = allMessages.length;
+          
+          if (allMessages.length > 0) {
+            latestTimeEl.textContent = timeAgo(allMessages[0].created_at);
+          } else {
+            latestTimeEl.textContent = '-';
+          }
+          
+          filterAndRender();
+        })
+        .catch(err => {
+          console.error(err);
+          feedbackGrid.innerHTML = `
+            <div class="empty-state" style="border-color: #ef4444;">
+              <i class="fas fa-circle-exclamation" style="color: #ef4444;"></i>
+              <h3 style="color: #ef4444;">Connection Error</h3>
+              <p>Could not load the feedback list. Make sure the backend server is running.</p>
+            </div>
+          `;
+          showToast('Failed to connect to the backend server.', false);
+        });
+    }
+
+    // Filter feedback based on search bar query
+    function filterAndRender() {
+      const query = searchInput.value.toLowerCase().trim();
+      if (!query) {
+        renderFeedback(allMessages);
+        return;
+      }
+
+      const filtered = allMessages.filter(msg => {
+        return (msg.name && msg.name.toLowerCase().includes(query)) ||
+               (msg.email && msg.email.toLowerCase().includes(query)) ||
+               (msg.phone && msg.phone.toLowerCase().includes(query)) ||
+               (msg.message && msg.message.toLowerCase().includes(query));
+      });
+
+      renderFeedback(filtered);
+    }
+
+    // Clear feedback database API request
+    function clearFeedbackData() {
+      confirmClearBtn.disabled = true;
+      confirmClearBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Clearing...';
+
+      fetch(API_BASE + '/contact', {
+        method: 'DELETE'
+      })
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to delete');
+        return res.json();
+      })
+      .then(data => {
+        showToast('All feedback data has been cleared.');
+        allMessages = [];
+        totalCountEl.textContent = '0';
+        latestTimeEl.textContent = '-';
+        renderFeedback([]);
+        closeModal();
+      })
+      .catch(err => {
+        console.error(err);
+        showToast('Failed to clear feedback records.', false);
+      })
+      .finally(() => {
+        confirmClearBtn.disabled = false;
+        confirmClearBtn.innerHTML = 'Yes, Clear All';
+      });
+    }
+
+    // Event Listeners
+    searchInput.addEventListener('input', filterAndRender);
+
+    // Modal Control
+    function openModal() {
+      confirmModal.classList.add('active');
+    }
+
+    function closeModal() {
+      confirmModal.classList.remove('active');
+    }
+
+    clearBtn.addEventListener('click', openModal);
+    cancelModal.addEventListener('click', closeModal);
+    confirmClearBtn.addEventListener('click', clearFeedbackData);
+    
+    // Close modal if user clicks outside content
+    confirmModal.addEventListener('click', (e) => {
+      if (e.target === confirmModal) closeModal();
+    });
+
+    // Initial Load
+    fetchMessages();
+    
+    // Periodically refresh stats
+    setInterval(fetchMessages, 15000);
+  </script>
+</body>
+</html>

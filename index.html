@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PowerScan – Scan. Pay. Done. | Smart Electricity Bill Payment</title>
+  <meta name="description" content="PowerScan is the fastest and safest way to pay your electricity bill in Andhra Pradesh. Scan the QR code on your meter and pay instantly.">
+  <meta name="keywords" content="electricity bill payment, QR code payment, Andhra Pradesh, PowerScan, smart payment">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="#" class="nav-logo">
+      <div class="logo-icon"><i class="fas fa-bolt"></i></div>
+      <span>PowerScan</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#how-it-works">How It Works</a></li>
+      <li><a href="#benefits">Benefits</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li><a href="auth.html"><i class="fas fa-user"></i> Login</a></li>
+      <li><a href="scanner.html" class="nav-cta"><i class="fas fa-qrcode"></i> Scan QR</a></li>
+    </ul>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#features" onclick="closeMobile()">Features</a>
+  <a href="#how-it-works" onclick="closeMobile()">How It Works</a>
+  <a href="#benefits" onclick="closeMobile()">Benefits</a>
+  <a href="#about" onclick="closeMobile()">About</a>
+  <a href="#contact" onclick="closeMobile()">Contact</a>
+  <a href="auth.html">👤 Login / Register</a>
+  <a href="scanner.html">🔲 Scan QR Code</a>
+</div>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="home">
+  <div class="hero-container">
+    <div class="hero-content">
+      <div class="hero-badge"><span class="dot"></span> Now Live in Andhra Pradesh</div>
+      <h1>Scan. Pay.<br>Done.</h1>
+      <p>The fastest and safest way to pay your electricity bill. Just scan the QR code on your meter — no consumer number needed.</p>
+      <div class="hero-buttons">
+        <a href="scanner.html" class="btn-primary"><i class="fas fa-qrcode"></i> Scan QR Code</a>
+        <a href="#" class="btn-secondary"><i class="fas fa-download"></i> Download App</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><h3>50K+</h3><p>Active Users</p></div>
+        <div class="stat"><h3>₹2Cr+</h3><p>Bills Processed</p></div>
+        <div class="stat"><h3>99.9%</h3><p>Uptime</p></div>
+      </div>
+    </div>
+    <div class="hero-image">
+      <img src="assets/hero-illustration.png" alt="PowerScan - Scan QR code on electricity meter to pay bill instantly">
+    </div>
+  </div>
+</section>
+
+<!-- ===== FEATURES ===== -->
+<section id="features">
+  <div class="section-container">
+    <div class="section-header fade-in">
+      <span class="overline">Features</span>
+      <h2>Everything You Need to Pay Smarter</h2>
+      <p>PowerScan brings cutting-edge technology to simplify your electricity bill payments.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card fade-in">
+        <div class="feature-icon blue"><i class="fas fa-qrcode"></i></div>
+        <h3>QR Code Payment</h3>
+        <p>Every electricity meter has a unique QR code. Just scan it with your phone and you're ready to pay.</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon green"><i class="fas fa-bolt"></i></div>
+        <h3>Instant Bill Fetch</h3>
+        <p>Your bill details appear instantly after scanning. No manual entry, no waiting.</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon blue"><i class="fas fa-shield-halved"></i></div>
+        <h3>Secure Payment</h3>
+        <p>Bank-grade encryption and secure payment gateway ensure your money is always safe.</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon green"><i class="fas fa-receipt"></i></div>
+        <h3>Digital Receipts</h3>
+        <p>Get instant digital receipts for every payment. Download or share them anytime.</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon blue"><i class="fas fa-clock-rotate-left"></i></div>
+        <h3>Bill History</h3>
+        <p>Access your complete payment history and track all your past electricity bills in one place.</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon green"><i class="fas fa-bell"></i></div>
+        <h3>Payment Reminders</h3>
+        <p>Never miss a due date. Get smart reminders before your bill is due.</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon blue"><i class="fas fa-chart-line"></i></div>
+        <h3>Usage Dashboard</h3>
+        <p>Monitor your electricity consumption with beautiful charts and insights to save energy.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== HOW IT WORKS ===== -->
+<section id="how-it-works">
+  <div class="section-container">
+    <div class="section-header fade-in">
+      <span class="overline">How It Works</span>
+      <h2>Pay Your Bill in 5 Easy Steps</h2>
+      <p>From scanning to receipt — it takes less than 60 seconds.</p>
+    </div>
+    <div class="steps-timeline">
+      <div class="step-item">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>Open the PowerScan App</h3>
+          <p>Download and launch the PowerScan app on your smartphone or visit our website.</p>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Scan the QR Code</h3>
+          <p>Point your camera at the QR code on your electricity meter. It's that simple.</p>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>View Your Bill Instantly</h3>
+          <p>Your bill details, due date, and amount appear on screen immediately.</p>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>Pay Securely</h3>
+          <p>Choose your preferred payment method — UPI, card, or net banking — and pay with one tap.</p>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>Receive a Digital Receipt</h3>
+          <p>Get an instant confirmation and digital receipt. Your payment is done!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== BENEFITS ===== -->
+<section id="benefits">
+  <div class="section-container">
+    <div class="section-header fade-in">
+      <span class="overline">Benefits</span>
+      <h2>A Win-Win for Everyone</h2>
+      <p>PowerScan benefits both electricity consumers and the state department.</p>
+    </div>
+    <div class="benefits-grid fade-in">
+      <div class="benefits-column">
+        <h3><i class="fas fa-user"></i> For Customers</h3>
+        <div class="benefit-item">
+          <div class="benefit-check"><i class="fas fa-check"></i></div>
+          <div><h4>No Consumer Number Needed</h4><p>Just scan the QR code — no need to remember or type your consumer number.</p></div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-check"><i class="fas fa-check"></i></div>
+          <div><h4>Fast Payment</h4><p>Complete your bill payment in under 60 seconds, anytime, anywhere.</p></div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-check"><i class="fas fa-check"></i></div>
+          <div><h4>Safe & Secure</h4><p>Bank-grade security with encrypted transactions and secure payment gateways.</p></div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-check"><i class="fas fa-check"></i></div>
+          <div><h4>Instant Receipt</h4><p>Digital receipts delivered immediately after payment for your records.</p></div>
+        </div>
+      </div>
+      <div class="benefits-column">
+        <h3><i class="fas fa-building-columns"></i> For Electricity Department</h3>
+        <div class="benefit-item">
+          <div class="benefit-check"><i class="fas fa-check"></i></div>
+          <div><h4>Higher On-Time Collections</h4><p>Easy payment process leads to more customers paying before due dates.</p></div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-check"><i class="fas fa-check"></i></div>
+          <div><h4>Reduced Manual Work</h4><p>Automated digital collections eliminate paperwork and manual processing.</p></div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-check"><i class="fas fa-check"></i></div>
+          <div><h4>Accurate Digital Records</h4><p>Every transaction is digitally recorded for transparency and easy auditing.</p></div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-check"><i class="fas fa-check"></i></div>
+          <div><h4>Better Customer Experience</h4><p>Modern, hassle-free payment experience increases customer satisfaction.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ABOUT ===== -->
+<section id="about">
+  <div class="section-container">
+    <div class="section-header fade-in">
+      <span class="overline">About Us</span>
+      <h2>Our Mission & Vision</h2>
+      <p>Building the future of utility payments, one scan at a time.</p>
+    </div>
+    <div class="about-content fade-in">
+      <div class="about-text">
+        <h3>Making Electricity Bill Payments Simple, Secure & Digital</h3>
+        <p>PowerScan was born from a simple observation: paying electricity bills shouldn't be complicated. In Andhra Pradesh, millions of consumers still struggle with long queues, forgotten consumer numbers, and unreliable payment systems.</p>
+        <p>We partnered with the Andhra Pradesh Electricity Department to place unique QR codes on every electricity meter. Our platform lets customers scan and pay in seconds — no consumer number required, no hassle, no delays.</p>
+        <p>Our vision extends beyond Andhra Pradesh. We aim to digitize electricity bill payments across India, making every meter smart and every payment instant.</p>
+      </div>
+      <div class="about-vision">
+        <div class="about-vision-item">
+          <div class="about-vision-icon" style="background:var(--blue-50); color:var(--blue-600);"><i class="fas fa-eye"></i></div>
+          <div><h4>Vision</h4><p>To become India's leading QR-based utility payment platform, serving 100 million+ households.</p></div>
+        </div>
+        <div class="about-vision-item">
+          <div class="about-vision-icon" style="background:var(--green-50); color:var(--green-600);"><i class="fas fa-bullseye"></i></div>
+          <div><h4>Mission</h4><p>Eliminate the complexity of bill payments through technology that anyone can use.</p></div>
+        </div>
+        <div class="about-vision-item">
+          <div class="about-vision-icon" style="background:var(--blue-50); color:var(--blue-600);"><i class="fas fa-handshake"></i></div>
+          <div><h4>Partnership</h4><p>Official agreement with AP Electricity Department ensuring direct, secure fund transfers.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CONTACT ===== -->
+<section id="contact">
+  <div class="section-container">
+    <div class="section-header fade-in">
+      <span class="overline">Contact Us</span>
+      <h2>Get in Touch</h2>
+      <p>Have questions or want to partner with us? We'd love to hear from you.</p>
+    </div>
+    <div class="contact-wrapper fade-in">
+      <div class="contact-info">
+        <h3>Let's Talk</h3>
+        <p>Whether you're a government official, investor, or a curious customer, reach out and we'll respond within 24 hours.</p>
+        <div class="contact-detail">
+          <div class="contact-detail-icon"><i class="fas fa-envelope"></i></div>
+          <div><h4>Email</h4><p>hello@powerscan.in</p></div>
+        </div>
+        <div class="contact-detail">
+          <div class="contact-detail-icon"><i class="fas fa-phone"></i></div>
+          <div><h4>Phone</h4><p>+91 98765 43210</p></div>
+        </div>
+        <div class="contact-detail">
+          <div class="contact-detail-icon"><i class="fas fa-location-dot"></i></div>
+          <div><h4>Office</h4><p>Vijayawada, Andhra Pradesh, India</p></div>
+        </div>
+      </div>
+      <form class="contact-form" id="contactForm" onsubmit="handleContact(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" placeholder="Your name" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" placeholder="you@example.com" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="phone">Phone Number</label>
+          <input type="tel" id="phone" placeholder="+91 XXXXX XXXXX">
+        </div>
+        <div class="form-group">
+          <label for="message">Message</label>
+          <textarea id="message" placeholder="How can we help you?" required></textarea>
+        </div>
+        <button type="submit" class="btn-submit"><i class="fas fa-paper-plane"></i> Send Message</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="#" class="nav-logo" style="margin-bottom:8px;">
+        <div class="logo-icon"><i class="fas fa-bolt"></i></div>
+        <span style="color:#fff;">PowerScan</span>
+      </a>
+      <p>The smartest way to pay your electricity bill. Scan, pay, and go — powered by technology, backed by trust.</p>
+      <div class="footer-social">
+        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
+        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Product</h4>
+      <a href="#features">Features</a>
+      <a href="#how-it-works">How It Works</a>
+      <a href="scanner.html">Scan QR</a>
+      <a href="#">Download App</a>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <a href="#about">About Us</a>
+      <a href="#contact">Contact</a>
+      <a href="feedback.html">Feedback Inbox</a>
+      <a href="#">Careers</a>
+      <a href="#">Press Kit</a>
+    </div>
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms & Conditions</a>
+      <a href="#">Support</a>
+      <a href="#">FAQ</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2026 PowerScan. All rights reserved.</p>
+    <p>Made with <i class="fas fa-heart" style="color:var(--blue-400);"></i> in Andhra Pradesh, India</p>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

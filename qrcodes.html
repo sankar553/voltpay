@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meter QR Codes – VoltPay</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+      min-height: 100vh;
+      padding: 32px 20px 60px;
+      color: #fff;
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .page-header .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(139,92,246,.2);
+      border: 1px solid rgba(139,92,246,.4);
+      padding: 6px 18px;
+      border-radius: 50px;
+      font-size: .82rem;
+      font-weight: 700;
+      color: #c4b5fd;
+      margin-bottom: 16px;
+      letter-spacing: .5px;
+    }
+    .page-header h1 {
+      font-size: 2.2rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #a78bfa, #60a5fa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+    .page-header p {
+      color: #94a3b8;
+      font-size: 1rem;
+    }
+
+    .tip-bar {
+      background: rgba(99,102,241,.15);
+      border: 1px solid rgba(99,102,241,.3);
+      border-radius: 16px;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      max-width: 700px;
+      margin: 0 auto 36px;
+      font-size: .88rem;
+      color: #c7d2fe;
+    }
+    .tip-bar i { color: #818cf8; font-size: 1.1rem; flex-shrink: 0; }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .qr-card {
+      background: #fff;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,.35);
+      transition: transform .25s, box-shadow .25s;
+      cursor: pointer;
+    }
+    .qr-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 30px 80px rgba(0,0,0,.5);
+    }
+
+    .card-top {
+      padding: 20px 20px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .meter-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .card-top-text h3 {
+      font-size: .95rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 2px;
+    }
+    .card-top-text p {
+      font-size: .78rem;
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    .qr-wrapper {
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+    }
+    .qr-box {
+      background: #fff;
+      border: 3px solid #f1f5f9;
+      border-radius: 16px;
+      padding: 12px;
+      display: inline-block;
+    }
+
+    .card-bottom {
+      padding: 0 20px 20px;
+    }
+    .qr-code-text {
+      text-align: center;
+      font-size: .78rem;
+      font-weight: 700;
+      color: #64748b;
+      font-family: monospace;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 6px 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      letter-spacing: .5px;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px 0;
+      font-size: .8rem;
+    }
+    .info-row .lbl { color: #94a3b8; }
+    .info-row .val { font-weight: 700; color: #1e293b; }
+    .amount-due {
+      margin-top: 10px;
+      background: linear-gradient(135deg, #faf5ff, #ede9fe);
+      border: 1.5px dashed #c4b5fd;
+      border-radius: 12px;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .amount-due .lbl { font-size: .8rem; font-weight: 700; color: #7c3aed; }
+    .amount-due .amt { font-size: 1.15rem; font-weight: 900; color: #6d28d9; }
+
+    .scan-btn {
+      display: block;
+      width: 100%;
+      margin-top: 14px;
+      padding: 13px;
+      border: none;
+      border-radius: 14px;
+      font-family: inherit;
+      font-size: .9rem;
+      font-weight: 800;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all .2s;
+      text-decoration: none;
+    }
+    .scan-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+    .print-btn {
+      display: block;
+      text-align: center;
+      margin: 40px auto 0;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.2);
+      color: #fff;
+      padding: 14px 36px;
+      border-radius: 50px;
+      font-family: inherit;
+      font-size: .95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .2s;
+      width: fit-content;
+    }
+    .print-btn:hover { background: rgba(255,255,255,.2); }
+
+    @media print {
+      body { background: #fff !important; padding: 10px; }
+      .page-header h1, .page-header p { color: #000 !important; -webkit-text-fill-color: #000 !important; }
+      .tip-bar, .print-btn, .scan-btn { display: none !important; }
+      .qr-card { box-shadow: 0 0 0 1px #e2e8f0; break-inside: avoid; }
+    }
+
+    @media(max-width:600px) {
+      .cards-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
+      .card-top-text h3 { font-size: .82rem; }
+      .qr-wrapper { padding: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="badge"><i class="fas fa-qrcode"></i> SCAN TO PAY</div>
+  <h1>⚡ VoltPay Meter QR Codes</h1>
+  <p>Scan any QR below with the VoltPay scanner to view & pay your electricity bill</p>
+</div>
+
+<div class="tip-bar">
+  <i class="fas fa-lightbulb"></i>
+  <span><strong>How to use:</strong> Open the <strong>VoltPay Scanner</strong>, point camera at any QR code below → bill details load automatically → choose payment method!</span>
+</div>
+
+<div class="cards-grid" id="cardsGrid"></div>
+
+<button class="print-btn" onclick="window.print()">
+  <i class="fas fa-print"></i> &nbsp;Print All QR Codes
+</button>
+
+<script>
+const meters = [
+  {
+    qr: 'QR-AP-VJA-001',
+    name: 'Rajesh Kumar Reddy',
+    consumer: 'AP-VJA-2024-098712',
+    meter: 'MTR-AP-456821',
+    city: 'Vijayawada',
+    type: 'Domestic',
+    amount: '₹2,847',
+    color: '#7c3aed',
+    icon: 'fas fa-home'
+  },
+  {
+    qr: 'QR-AP-GNT-002',
+    name: 'Lakshmi Devi Nair',
+    consumer: 'AP-GNT-2024-034521',
+    meter: 'MTR-AP-789034',
+    city: 'Guntur',
+    type: 'Domestic',
+    amount: '₹1,789',
+    color: '#059669',
+    icon: 'fas fa-home'
+  },
+  {
+    qr: 'QR-AP-VSP-003',
+    name: 'Venkata Rao Sharma',
+    consumer: 'AP-VSP-2024-056789',
+    meter: 'MTR-AP-123456',
+    city: 'Visakhapatnam',
+    type: 'Commercial',
+    amount: '₹9,702',
+    color: '#d97706',
+    icon: 'fas fa-building'
+  },
+  {
+    qr: 'QR-AP-TPT-004',
+    name: 'Srinivasa Murthy',
+    consumer: 'AP-TPT-2024-071234',
+    meter: 'MTR-AP-345678',
+    city: 'Tirupati',
+    type: 'Commercial',
+    amount: '₹4,059',
+    color: '#e11d48',
+    icon: 'fas fa-store'
+  },
+  {
+    qr: 'QR-AP-NLR-005',
+    name: 'Padmavathi Reddy',
+    consumer: 'AP-NLR-2024-089012',
+    meter: 'MTR-AP-567890',
+    city: 'Nellore',
+    type: 'Domestic',
+    amount: '₹1,469',
+    color: '#0284c7',
+    icon: 'fas fa-house-user'
+  }
+];
+
+const grid = document.getElementById('cardsGrid');
+
+meters.forEach((m, i) => {
+  const card = document.createElement('div');
+  card.className = 'qr-card';
+  card.innerHTML = `
+    <div class="card-top">
+      <div class="meter-icon" style="background:${m.color}20;color:${m.color};">
+        <i class="${m.icon}"></i>
+      </div>
+      <div class="card-top-text">
+        <h3>${m.name}</h3>
+        <p>${m.city} • ${m.type}</p>
+      </div>
+    </div>
+    <div class="qr-wrapper">
+      <div class="qr-box">
+        <div id="qr${i}"></div>
+      </div>
+    </div>
+    <div class="card-bottom">
+      <div class="qr-code-text">${m.qr}</div>
+      <div class="info-row"><span class="lbl">Consumer No.</span><span class="val">${m.consumer}</span></div>
+      <div class="info-row"><span class="lbl">Meter No.</span><span class="val">${m.meter}</span></div>
+      <div class="amount-due">
+        <span class="lbl">Amount Due (May 2026)</span>
+        <span class="amt">${m.amount}</span>
+      </div>
+      <a href="scanner.html" class="scan-btn" style="background:linear-gradient(135deg,${m.color},${m.color}cc);">
+        <i class="fas fa-qrcode"></i> Open Scanner
+      </a>
+    </div>`;
+  grid.appendChild(card);
+
+  // Generate QR code in the div
+  new QRCode(document.getElementById('qr' + i), {
+    text: m.qr,
+    width: 160,
+    height: 160,
+    colorDark: '#0f172a',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.H
+  });
+});
+</script>
+</body>
+</html>

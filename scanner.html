@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Scan QR Code – PowerScan</title>
+  <meta name="description" content="Scan the QR code on your electricity meter to view and pay your bill instantly with PowerScan.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+  <style>
+    /* Reset & Fullscreen Layout */
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #000;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      color: #fff;
+    }
+    .scanner-page {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: #000;
+      overflow: hidden;
+    }
+
+    /* Live Video Feed Background */
+    #video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 1;
+    }
+    #previewImg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 1;
+      display: none;
+    }
+
+    /* Viewfinder Overlay Mask */
+    .scanner-overlay-mask {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .viewfinder-cutout {
+      position: absolute;
+      top: 45%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 280px;
+      height: 280px;
+      border-radius: 32px;
+      border: 4px solid #a855f7; /* Immersive neon purple border */
+      box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.78); /* High contrast dark blue-slate overlay */
+      pointer-events: auto;
+    }
+
+    /* Laser Line Animation */
+    .laser-line {
+      position: absolute;
+      left: 6%;
+      right: 6%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #c084fc, transparent);
+      box-shadow: 0 0 10px #a855f7;
+      animation: scanLaser 2.2s ease-in-out infinite;
+    }
+    @keyframes scanLaser {
+      0% { top: 12%; }
+      50% { top: 88%; }
+      100% { top: 12%; }
+    }
+
+    /* Glassmorphic App Header */
+    .app-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 20px 28px;
+      background: linear-gradient(to bottom, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.4) 75%, rgba(15, 23, 42, 0) 100%);
+      z-index: 10;
+    }
+    .header-btn {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      font-size: 1.2rem;
+      cursor: pointer;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      backdrop-filter: blur(8px);
+    }
+    .header-btn:active {
+      transform: scale(0.9);
+      background: rgba(255, 255, 255, 0.25);
+    }
+    .header-text {
+      flex-grow: 1;
+      margin-left: 16px;
+    }
+    .header-text h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin: 0 0 2px 0;
+      color: #ffffff;
+      letter-spacing: -0.2px;
+    }
+    .header-text p {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.7);
+      margin: 0;
+      font-weight: 500;
+    }
+
+    /* Immersive Bottom Action Buttons */
+    .scanner-actions {
+      position: absolute;
+      bottom: 84px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      z-index: 10;
+      padding: 0 24px;
+    }
+    .action-item-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      width: 80px;
+    }
+    .action-circle-btn {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1.5px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(12px);
+      color: #fff;
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .action-item-wrap:active .action-circle-btn {
+      background: rgba(255, 255, 255, 0.28);
+      transform: scale(0.9);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+    .action-item-wrap span {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #ffffff;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+      text-align: center;
+    }
+
+    /* Branding Footer */
+    .branding-footer {
+      position: absolute;
+      bottom: 28px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      z-index: 10;
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+      color: rgba(255, 255, 255, 0.5);
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+
+    /* Floating Status Toast Alert */
+    .status-toast {
+      position: fixed;
+      top: 100px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      z-index: 98;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 24px;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      backdrop-filter: blur(8px);
+    }
+    .status-toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0);
+    }
+    .status-toast.scanning { background: rgba(59, 130, 246, 0.95); color: #fff; }
+    .status-toast.success { background: rgba(16, 185, 129, 0.95); color: #fff; }
+    .status-toast.error { background: rgba(239, 68, 68, 0.95); color: #fff; }
+
+    /* Bottom Sheets Layout */
+    .bottom-sheet-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(6px);
+      z-index: 99;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    .bottom-sheet-backdrop.open {
+      opacity: 1;
+      visibility: visible;
+    }
+    .bottom-sheet {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #ffffff;
+      border-top-left-radius: 32px;
+      border-top-right-radius: 32px;
+      z-index: 100;
+      transform: translateY(100%);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      max-height: 85vh;
+      box-shadow: 0 -10px 40px rgba(0,0,0,0.35);
+      display: flex;
+      flex-direction: column;
+    }
+    .bottom-sheet.open {
+      transform: translateY(0);
+    }
+    .bottom-sheet-bar {
+      width: 48px;
+      height: 5px;
+      background: #cbd5e1;
+      border-radius: 3px;
+      margin: 14px auto 6px;
+      flex-shrink: 0;
+    }
+    .bottom-sheet-content {
+      padding: 16px 24px 36px;
+      overflow-y: auto;
+      color: #1e293b;
+    }
+
+    /* Common layout classes for sheet content */
+    .bill-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+    }
+    .bill-row .label {
+      color: #64748b;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    .bill-row .value {
+      font-weight: 600;
+      color: #0f172a;
+      text-align: right;
+    }
+
+    /* Hide element for canvas processing */
+    #processCanvas { display: none; }
+    #qrFileInput { display: none; }
+  </style>
+</head>
+<body>
+
+<div class="scanner-page">
+
+  <!-- Immersive App Header -->
+  <div class="app-header">
+    <button class="header-btn" onclick="goBack()" aria-label="Back">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <div class="header-text">
+      <h1>Scan any QR</h1>
+      <p>PhonePe • Google Pay • BHIM • Paytm</p>
+    </div>
+    <button class="header-btn" onclick="showToast('scanning', 'Scanning mode active')" aria-label="Help">
+      <i class="far fa-question-circle"></i>
+    </button>
+  </div>
+
+  <!-- Camera Video element -->
+  <video id="video" playsinline></video>
+  <img id="previewImg" alt="Captured QR Source">
+  <canvas id="processCanvas"></canvas>
+
+  <!-- Viewfinder Overlay Mask Cutout -->
+  <div class="scanner-overlay-mask">
+    <div class="viewfinder-cutout">
+      <div class="laser-line"></div>
+    </div>
+  </div>
+
+  <!-- Status Toast notifications -->
+  <div class="status-toast" id="statusToast">
+    <i class="fas fa-info-circle" id="toastIcon"></i>
+    <span id="toastText">Status Info</span>
+  </div>
+
+  <!-- Immersive Floating Control Actions -->
+  <div class="scanner-actions">
+    <div class="action-item-wrap" onclick="triggerFileUpload()">
+      <button class="action-circle-btn"><i class="far fa-image"></i></button>
+      <span>Upload QR</span>
+    </div>
+    <div class="action-item-wrap" onclick="toggleTorch()">
+      <button class="action-circle-btn"><i class="far fa-lightbulb" id="torchIcon"></i></button>
+      <span>Torch</span>
+    </div>
+    <div class="action-item-wrap" onclick="openSheet('simulateSheet')">
+      <button class="action-circle-btn"><i class="fas fa-keyboard"></i></button>
+      <span>Select Meter</span>
+    </div>
+  </div>
+
+  <!-- Hidden Photo Capture Input -->
+  <input type="file" id="qrFileInput" accept="image/*" capture="environment">
+
+  <!-- Footer Branding -->
+  <div class="branding-footer">
+    <span>BHIM | UPI</span>
+  </div>
+
+</div>
+
+<!-- Bottom Sheets Backdrop overlay -->
+<div class="bottom-sheet-backdrop" id="sheetBackdrop" onclick="closeAllSheets()"></div>
+
+<!-- Bottom Sheet: Manual Simulation Selection -->
+<div class="bottom-sheet" id="simulateSheet">
+  <div class="bottom-sheet-bar"></div>
+  <div class="bottom-sheet-content">
+    <h3 style="font-size:1.2rem;font-weight:800;margin:4px 0 16px;color:#0f172a;letter-spacing:-0.3px;">Select Meter QR Code</h3>
+    <div style="margin-bottom:20px;">
+      <label for="qrSelect" style="font-size:.85rem;font-weight:600;color:#64748b;display:block;margin-bottom:8px;">Available Meters</label>
+      <select id="qrSelect" style="width:100%;padding:14px 18px;border:2px solid #e2e8f0;border-radius:16px;font-family:inherit;font-size:.95rem;background:#f8fafc;outline:none;cursor:pointer;color:#0f172a;font-weight:500;">
+        <option value="QR-AP-VJA-001">QR-AP-VJA-001 — Vijayawada (Domestic)</option>
+        <option value="QR-AP-GNT-002">QR-AP-GNT-002 — Guntur (Domestic)</option>
+        <option value="QR-AP-VSP-003">QR-AP-VSP-003 — Visakhapatnam (Commercial)</option>
+        <option value="QR-AP-TPT-004">QR-AP-TPT-004 — Tirupati (Commercial)</option>
+        <option value="QR-AP-NLR-005">QR-AP-NLR-005 — Nellore (Domestic)</option>
+      </select>
+    </div>
+    <button id="simulateBtn" class="btn-primary" style="width:100%;justify-content:center;border-radius:16px;padding:16px 20px;font-weight:700;">
+      <i class="fas fa-bolt"></i> Simulate QR Scan
+    </button>
+  </div>
+</div>
+
+<!-- Bottom Sheet: Bill Details -->
+<div class="bottom-sheet" id="billSheet">
+  <div class="bottom-sheet-bar"></div>
+  <div class="bottom-sheet-content">
+    <h3 style="font-size:1.25rem;font-weight:800;margin:4px 0 16px;color:#0f172a;display:flex;align-items:center;gap:10px;letter-spacing:-0.3px;">
+      <i class="fas fa-file-invoice" style="color:#a855f7;"></i> Electricity Bill Details
+    </h3>
+    <div style="background:#f8fafc; border-radius:18px; padding:16px; margin-bottom:16px; border:1px solid #e2e8f0;">
+      <div class="bill-row" style="border-bottom:1px solid #f1f5f9; padding-bottom:10px; margin-bottom:6px;"><span class="label">Consumer Name</span><span class="value" id="billConsumer"></span></div>
+      <div class="bill-row" style="border-bottom:1px solid #f1f5f9; padding-bottom:10px; margin-bottom:6px;"><span class="label">Consumer No.</span><span class="value" id="billConsumerNo"></span></div>
+      <div class="bill-row" style="border-bottom:1px solid #f1f5f9; padding-bottom:10px; margin-bottom:6px;"><span class="label">Meter No.</span><span class="value" id="billMeter"></span></div>
+      <div class="bill-row" style="border-bottom:1px solid #f1f5f9; padding-bottom:10px; margin-bottom:6px;"><span class="label">Address</span><span class="value" id="billAddress"></span></div>
+      <div class="bill-row" style="border-bottom:1px solid #f1f5f9; padding-bottom:10px; margin-bottom:6px;"><span class="label">Bill Month</span><span class="value" id="billMonth"></span></div>
+      <div class="bill-row" style="border-bottom:1px solid #f1f5f9; padding-bottom:10px; margin-bottom:6px;"><span class="label">Due Date</span><span class="value" id="billDue"></span></div>
+      <div class="bill-row" style="border-bottom:1px solid #f1f5f9; padding-bottom:10px; margin-bottom:6px;"><span class="label">Units Consumed</span><span class="value" id="billUnits"></span></div>
+      <div class="bill-row" style="padding-bottom:0;"><span class="label">Energy Charges</span><span class="value" id="billAmount"></span></div>
+    </div>
+    <div style="background:#faf5ff;border-radius:18px;padding:18px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;border:1.5px dashed #d8b4fe;">
+      <span style="font-weight:700;color:#7e22ce;font-size:1rem;">Total Payable</span>
+      <span id="billTotal" style="font-size:1.45rem;font-weight:900;color:#7e22ce;"></span>
+    </div>
+    <button onclick="openPaymentSheet()" style="width:100%;padding:17px;border:none;border-radius:18px;background:linear-gradient(135deg,#a855f7,#7c3aed);color:#fff;font-size:1rem;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 6px 24px rgba(124,58,237,.4);display:flex;align-items:center;justify-content:center;gap:10px;">
+      <i class="fas fa-lock"></i> Proceed to Pay
+    </button>
+  </div>
+</div>
+
+<!-- Bottom Sheet: Choose Payment Method -->
+<div class="bottom-sheet" id="paymentSheet" style="max-height:92vh;">
+  <div class="bottom-sheet-bar"></div>
+  <div class="bottom-sheet-content" style="padding-bottom:48px;">
+
+    <!-- Amount header -->
+    <div style="text-align:center;margin-bottom:20px;padding:18px;background:linear-gradient(135deg,#faf5ff,#ede9fe);border-radius:20px;border:1.5px solid #ddd6fe;">
+      <p style="margin:0;font-size:.85rem;color:#7c3aed;font-weight:600;text-transform:uppercase;letter-spacing:1px;">Total Amount</p>
+      <p id="payAmtDisplay" style="margin:6px 0 0;font-size:2rem;font-weight:900;color:#6d28d9;"></p>
+      <p id="payMerchant" style="margin:4px 0 0;font-size:.82rem;color:#8b5cf6;">PowerScan Electricity • powerscan@okaxis</p>
+    </div>
+
+    <!-- UPI Apps section -->
+    <div id="upiSection">
+      <p style="font-size:.82rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Pay via UPI App</p>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;">
+
+        <!-- Google Pay -->
+        <button onclick="payWithApp('gpay')" style="background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:14px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .2s;font-family:inherit;" onmouseover="this.style.borderColor='#4285F4';this.style.background='#f0f7ff'" onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#fff'">
+          <svg width="32" height="32" viewBox="0 0 48 48"><path fill="#4285F4" d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z"/><path fill="#34A853" d="M6.3 14.7l7 5.1C15.2 16.3 19.3 13 24 13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 16.3 2 9.6 7.3 6.3 14.7z"/><path fill="#FBBC05" d="M24 46c5.5 0 10.4-1.8 14.3-4.9l-6.6-5.4C29.6 37.3 27 38 24 38c-6.1 0-11.3-4.1-13.1-9.7l-7 5.4C7.5 41.5 15.2 46 24 46z"/><path fill="#EA4335" d="M44.5 20H24v8.5h11.8c-.9 2.5-2.5 4.6-4.6 6l6.6 5.4C42 36.2 45 30.4 45 24c0-1.3-.2-2.7-.5-4z"/></svg>
+          <span style="font-size:.72rem;font-weight:700;color:#1a1a2e;">Google Pay</span>
+        </button>
+
+        <!-- PhonePe -->
+        <button onclick="payWithApp('phonepe')" style="background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:14px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .2s;font-family:inherit;" onmouseover="this.style.borderColor='#5f259f';this.style.background='#faf5ff'" onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#fff'">
+          <svg width="32" height="32" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#5f259f"/><path fill="#fff" d="M24 8c-8.8 0-16 7.2-16 16s7.2 16 16 16 16-7.2 16-16S32.8 8 24 8zm2 22h-4v-8h-4v-4h4v-4a4 4 0 0 1 4-4h4v4h-4v4h4l-1 4h-3v8z"/></svg>
+          <span style="font-size:.72rem;font-weight:700;color:#1a1a2e;">PhonePe</span>
+        </button>
+
+        <!-- Paytm -->
+        <button onclick="payWithApp('paytm')" style="background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:14px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .2s;font-family:inherit;" onmouseover="this.style.borderColor='#00BAF2';this.style.background='#f0fbff'" onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#fff'">
+          <svg width="32" height="32" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#00BAF2"/><text x="24" y="30" text-anchor="middle" fill="white" font-size="12" font-weight="bold" font-family="Arial">Paytm</text></svg>
+          <span style="font-size:.72rem;font-weight:700;color:#1a1a2e;">Paytm</span>
+        </button>
+
+        <!-- BHIM -->
+        <button onclick="payWithApp('bhim')" style="background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:14px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .2s;font-family:inherit;" onmouseover="this.style.borderColor='#0061a8';this.style.background='#f0f4ff'" onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#fff'">
+          <svg width="32" height="32" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#0061a8"/><text x="24" y="28" text-anchor="middle" fill="white" font-size="11" font-weight="bold" font-family="Arial">BHIM</text></svg>
+          <span style="font-size:.72rem;font-weight:700;color:#1a1a2e;">BHIM</span>
+        </button>
+      </div>
+
+      <!-- UPI ID direct entry -->
+      <div style="background:#f8fafc;border-radius:16px;padding:16px;margin-bottom:20px;border:1.5px solid #e2e8f0;">
+        <p style="margin:0 0 10px;font-size:.82rem;font-weight:700;color:#64748b;">Or enter UPI ID directly</p>
+        <div style="display:flex;gap:10px;">
+          <input id="upiIdInput" type="text" placeholder="yourname@upi" style="flex:1;padding:12px 14px;border:2px solid #e2e8f0;border-radius:12px;font-family:inherit;font-size:.95rem;outline:none;background:#fff;">
+          <button onclick="payWithUpiId()" style="background:linear-gradient(135deg,#a855f7,#7c3aed);color:#fff;border:none;padding:12px 18px;border-radius:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;">Verify & Pay</button>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+        <div style="flex:1;height:1px;background:#e2e8f0;"></div>
+        <span style="font-size:.8rem;color:#94a3b8;font-weight:600;">OR</span>
+        <div style="flex:1;height:1px;background:#e2e8f0;"></div>
+      </div>
+    </div>
+
+    <!-- Card Payment -->
+    <div>
+      <p style="font-size:.82rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Credit / Debit Card</p>
+      <div style="background:#f8fafc;border-radius:18px;padding:18px;border:1.5px solid #e2e8f0;margin-bottom:16px;">
+        <div style="margin-bottom:14px;">
+          <label style="font-size:.78rem;font-weight:600;color:#64748b;display:block;margin-bottom:6px;">Card Number</label>
+          <input id="cardNumber" type="text" placeholder="1234  5678  9012  3456" maxlength="19" oninput="formatCard(this)" style="width:100%;padding:13px 14px;border:2px solid #e2e8f0;border-radius:12px;font-family:inherit;font-size:1rem;outline:none;box-sizing:border-box;letter-spacing:1px;">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+          <div>
+            <label style="font-size:.78rem;font-weight:600;color:#64748b;display:block;margin-bottom:6px;">Expiry Date</label>
+            <input id="cardExpiry" type="text" placeholder="MM / YY" maxlength="7" oninput="formatExpiry(this)" style="width:100%;padding:13px 14px;border:2px solid #e2e8f0;border-radius:12px;font-family:inherit;font-size:1rem;outline:none;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="font-size:.78rem;font-weight:600;color:#64748b;display:block;margin-bottom:6px;">CVV</label>
+            <input id="cardCvv" type="password" placeholder="• • •" maxlength="4" style="width:100%;padding:13px 14px;border:2px solid #e2e8f0;border-radius:12px;font-family:inherit;font-size:1rem;outline:none;box-sizing:border-box;">
+          </div>
+        </div>
+        <div>
+          <label style="font-size:.78rem;font-weight:600;color:#64748b;display:block;margin-bottom:6px;">Cardholder Name</label>
+          <input id="cardName" type="text" placeholder="As on your card" style="width:100%;padding:13px 14px;border:2px solid #e2e8f0;border-radius:12px;font-family:inherit;font-size:1rem;outline:none;box-sizing:border-box;">
+        </div>
+      </div>
+      <button onclick="payWithCard()" style="width:100%;padding:17px;border:none;border-radius:18px;background:linear-gradient(135deg,#0ea5e9,#2563eb);color:#fff;font-size:1rem;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 6px 24px rgba(37,99,235,.35);display:flex;align-items:center;justify-content:center;gap:10px;">
+        <i class="fas fa-credit-card"></i> Pay with Card
+      </button>
+    </div>
+
+    <!-- Net Banking -->
+    <div style="margin-top:16px;">
+      <p style="font-size:.82rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Net Banking</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+        <button onclick="payWithNetBanking('SBI')" style="background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:12px;cursor:pointer;font-family:inherit;font-size:.85rem;font-weight:700;color:#1a3a6b;transition:all .2s;" onmouseover="this.style.background='#f0f4ff'" onmouseout="this.style.background='#fff'">🏦 SBI</button>
+        <button onclick="payWithNetBanking('HDFC')" style="background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:12px;cursor:pointer;font-family:inherit;font-size:.85rem;font-weight:700;color:#e31837;transition:all .2s;" onmouseover="this.style.background='#fff5f5'" onmouseout="this.style.background='#fff'">🏦 HDFC</button>
+        <button onclick="payWithNetBanking('ICICI')" style="background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:12px;cursor:pointer;font-family:inherit;font-size:.85rem;font-weight:700;color:#f7941d;transition:all .2s;" onmouseover="this.style.background='#fff9f0'" onmouseout="this.style.background='#fff'">🏦 ICICI</button>
+        <button onclick="payWithNetBanking('Axis')" style="background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:12px;cursor:pointer;font-family:inherit;font-size:.85rem;font-weight:700;color:#97144d;transition:all .2s;" onmouseover="this.style.background='#fff0f6'" onmouseout="this.style.background='#fff'">🏦 Axis</button>
+      </div>
+    </div>
+
+    <!-- Secure Badge -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:20px;color:#94a3b8;font-size:.78rem;">
+      <i class="fas fa-shield-alt" style="color:#10b981;"></i>
+      <span>256-bit SSL Encrypted • RBI Regulated • PCI DSS Compliant</span>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const API_BASE = window.location.origin + '/api';
+
+let videoStream = null;
+let liveScanning = false;
+let torchOn = false;
+
+// Initialize Smart routing back button
+function goBack() {
+  stopLiveCamera();
+  const token = localStorage.getItem('token');
+  if (token) {
+    window.location.replace('dashboard.html');
+  } else {
+    window.location.replace('index.html');
+  }
+}
+
+// Kickstart live webcam on page load
+window.addEventListener('load', () => {
+  startLiveCamera();
+});
+
+// ── Status Toast Control ─────────────────────────────────────
+function showToast(type, message) {
+  const toast = document.getElementById('statusToast');
+  const icon = document.getElementById('toastIcon');
+  const text = document.getElementById('toastText');
+  
+  toast.className = `status-toast ${type}`;
+  text.textContent = message;
+  
+  if (type === 'scanning') {
+    icon.className = 'fas fa-spinner fa-spin';
+  } else if (type === 'success') {
+    icon.className = 'fas fa-check-circle';
+  } else {
+    icon.className = 'fas fa-exclamation-triangle';
+  }
+  
+  toast.classList.add('show');
+  
+  // Auto-hide unless scanning
+  if (type !== 'scanning') {
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 4000);
+  }
+}
+
+function hideToast() {
+  document.getElementById('statusToast').classList.remove('show');
+}
+
+// ── Live Camera Functions ────────────────────────────────────
+function startLiveCamera() {
+  const video = document.getElementById('video');
+  const previewImg = document.getElementById('previewImg');
+  
+  previewImg.style.display = 'none';
+
+  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+      .then(function(stream) {
+        videoStream = stream;
+        video.srcObject = stream;
+        video.setAttribute('playsinline', true);
+        video.play();
+        liveScanning = true;
+        showToast('scanning', 'Point camera at meter QR code');
+        requestAnimationFrame(tick);
+      })
+      .catch(function(err) {
+        console.warn("Live camera start failed, fallback to file upload mode:", err);
+        showToast('error', 'Camera stream offline. Tap Upload QR below.');
+      });
+  } else {
+    showToast('error', 'Webcam unsupported. Tap Upload QR below.');
+  }
+}
+
+function stopLiveCamera() {
+  liveScanning = false;
+  if (videoStream) {
+    videoStream.getTracks().forEach(track => track.stop());
+    videoStream = null;
+  }
+  const video = document.getElementById('video');
+  if (video) video.srcObject = null;
+}
+
+function toggleTorch() {
+  if (!videoStream) {
+    showToast('error', 'Camera is not active');
+    return;
+  }
+  const track = videoStream.getVideoTracks()[0];
+  if (!track) return;
+
+  const capabilities = track.getCapabilities ? track.getCapabilities() : {};
+  if (capabilities.torch) {
+    torchOn = !torchOn;
+    track.applyConstraints({
+      advanced: [{ torch: torchOn }]
+    }).then(() => {
+      document.getElementById('torchIcon').className = torchOn ? 'fas fa-lightbulb' : 'far fa-lightbulb';
+      showToast('success', torchOn ? 'Flashlight On' : 'Flashlight Off');
+    }).catch(err => {
+      console.warn("Torch failed:", err);
+      showToast('error', 'Failed to toggle torch');
+    });
+  } else {
+    showToast('error', 'Torch not supported on this camera');
+  }
+}
+
+function triggerFileUpload() {
+  document.getElementById('qrFileInput').click();
+}
+
+function tick() {
+  if (!liveScanning) return;
+  const video = document.getElementById('video');
+  if (video && video.readyState === video.HAVE_ENOUGH_DATA) {
+    const canvas = document.getElementById('processCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    
+    const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'attemptBoth' });
+
+    if (code && code.data) {
+      liveScanning = false;
+      stopLiveCamera();
+      showToast('success', 'QR Code successfully scanned!');
+      fetchBill(code.data);
+      return;
+    }
+  }
+  requestAnimationFrame(tick);
+}
+
+// ── Bottom Sheet Controls ────────────────────────────────────
+function openSheet(id) {
+  closeAllSheets();
+  document.getElementById('sheetBackdrop').classList.add('open');
+  document.getElementById(id).classList.add('open');
+}
+
+function closeAllSheets() {
+  document.getElementById('sheetBackdrop').classList.remove('open');
+  document.querySelectorAll('.bottom-sheet').forEach(sheet => {
+    sheet.classList.remove('open');
+  });
+  // If we closed the bill sheet without paying, resume camera scanning
+  if (!liveScanning && !document.getElementById('previewImg').style.display === 'block') {
+    startLiveCamera();
+  }
+}
+
+// ── Reset / Restart scanner ──────────────────────────────────
+function resetCapture() {
+  stopLiveCamera();
+  closeAllSheets();
+  document.getElementById('previewImg').style.display = 'none';
+  document.getElementById('qrFileInput').value = '';
+  startLiveCamera();
+}
+
+// ── File input: handles photo uploads ────────────────────────
+document.getElementById('qrFileInput').addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+
+  stopLiveCamera();
+  closeAllSheets();
+
+  const preview = document.getElementById('previewImg');
+  const reader = new FileReader();
+
+  showToast('scanning', 'Analyzing image for QR code…');
+
+  reader.onload = function(e) {
+    preview.src = e.target.result;
+    preview.style.display = 'block';
+
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.getElementById('processCanvas');
+      const scale = Math.min(1, 1200 / Math.max(img.width, img.height));
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+      let code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'attemptBoth' });
+
+      if (code && code.data) {
+        showToast('success', 'QR Code successfully scanned!');
+        fetchBill(code.data);
+      } else {
+        showToast('error', 'No QR code found. Try another photo.');
+      }
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+// ── Demo bill data ────────────────────────────────────────────
+const DEMO_BILLS = {
+  'QR-AP-VJA-001': { id:1, consumer_name:'Rajesh Kumar Reddy',    consumer_no:'AP-VJA-2024-098712', meter_no:'MTR-AP-456821', address:'12-5-84, Labbipet, Vijayawada',        bill_month:'May 2026', due_date:'2026-06-15', units_consumed:342, energy_charges:2565,  total_amount:2847  },
+  'QR-AP-GNT-002': { id:2, consumer_name:'Lakshmi Devi Nair',     consumer_no:'AP-GNT-2024-034521', meter_no:'MTR-AP-789034', address:'8-2-30, Brodipet, Guntur',              bill_month:'May 2026', due_date:'2026-06-15', units_consumed:215, energy_charges:1612,  total_amount:1789  },
+  'QR-AP-VSP-003': { id:3, consumer_name:'Venkata Rao Sharma',    consumer_no:'AP-VSP-2024-056789', meter_no:'MTR-AP-123456', address:'3-1-18, Dwaraka Nagar, Visakhapatnam', bill_month:'May 2026', due_date:'2026-06-15', units_consumed:980, energy_charges:8820,  total_amount:9702  },
+  'QR-AP-TPT-004': { id:4, consumer_name:'Srinivasa Murthy Iyer', consumer_no:'AP-TPT-2024-071234', meter_no:'MTR-AP-345678', address:'2-5-12, Tiruchanur Road, Tirupati',    bill_month:'May 2026', due_date:'2026-06-15', units_consumed:410, energy_charges:3690,  total_amount:4059  },
+  'QR-AP-NLR-005': { id:5, consumer_name:'Padmavathi Reddy',      consumer_no:'AP-NLR-2024-089012', meter_no:'MTR-AP-567890', address:'6-3-45, Magunta Layout, Nellore',      bill_month:'May 2026', due_date:'2026-06-15', units_consumed:178, energy_charges:1335,  total_amount:1469  },
+};
+
+let currentBill = null;
+
+function fetchBill(qrCode) {
+  // Load demo data immediately to make it super fast
+  const bill = DEMO_BILLS[qrCode] || DEMO_BILLS['QR-AP-VJA-001'];
+  populateBill(bill);
+  
+  // Try real API in background
+  const signal = (typeof AbortSignal !== 'undefined' && AbortSignal.timeout) ? AbortSignal.timeout(3000) : undefined;
+  fetch(API_BASE + '/bills/scan/' + qrCode, signal ? { signal } : {})
+    .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+    .then(data => { if (data && data.bill) populateBill(data.bill); })
+    .catch(() => {});
+}
+
+function populateBill(bill) {
+  currentBill = bill;
+  document.getElementById('billConsumer').textContent   = bill.consumer_name;
+  document.getElementById('billConsumerNo').textContent = bill.consumer_no;
+  document.getElementById('billMeter').textContent      = bill.meter_no;
+  document.getElementById('billAddress').textContent    = bill.address;
+  document.getElementById('billMonth').textContent      = bill.bill_month;
+  document.getElementById('billDue').textContent        = bill.due_date;
+  document.getElementById('billUnits').textContent      = bill.units_consumed + ' kWh';
+  document.getElementById('billAmount').textContent     = '₹' + bill.energy_charges.toFixed(2);
+  document.getElementById('billTotal').textContent      = '₹' + bill.total_amount.toFixed(2);
+  
+  // Open the bottom sheet elegantly
+  openSheet('billSheet');
+}
+
+// ── Manual simulation button trigger ─────────────────────────
+document.getElementById('simulateBtn').addEventListener('click', function() {
+  this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scanning…';
+  this.disabled = true;
+  const qr = document.getElementById('qrSelect').value;
+  setTimeout(() => {
+    fetchBill(qr);
+    this.innerHTML = '<i class="fas fa-bolt"></i> Simulate QR Scan';
+    this.disabled = false;
+  }, 800);
+});
+
+// ── Payment Sheet ────────────────────────────────────────────
+function openPaymentSheet() {
+  if (!currentBill) return;
+  const amt = currentBill.total_amount.toFixed(2);
+  document.getElementById('payAmtDisplay').textContent = '₹' + amt;
+  closeAllSheets();
+  document.getElementById('sheetBackdrop').classList.add('open');
+  document.getElementById('paymentSheet').classList.add('open');
+}
+
+// UPI deep links — open the actual app on the phone
+function payWithApp(app) {
+  if (!currentBill) return;
+  const amt   = currentBill.total_amount.toFixed(2);
+  const note  = encodeURIComponent('Electricity Bill ' + currentBill.bill_month);
+  const vpa   = 'powerscan@okaxis';
+  const name  = encodeURIComponent('PowerScan Electricity');
+
+  // Standard UPI deep link (works for all UPI apps)
+  const upiLink = `upi://pay?pa=${vpa}&pn=${name}&am=${amt}&cu=INR&tn=${note}`;
+
+  // App-specific deep links (open the exact app on phone)
+  const links = {
+    gpay:    `tez://upi/pay?pa=${vpa}&pn=${name}&am=${amt}&cu=INR&tn=${note}`,
+    phonepe: `phonepe://pay?pa=${vpa}&pn=${name}&am=${amt}&cu=INR&tn=${note}`,
+    paytm:   `paytmmp://pay?pa=${vpa}&pn=${name}&am=${amt}&cu=INR&tn=${note}`,
+    bhim:    `upi://pay?pa=${vpa}&pn=${name}&am=${amt}&cu=INR&tn=${note}`,
+  };
+
+  const deepLink = links[app] || upiLink;
+
+  // Try to open the app deep link
+  const opened = window.open(deepLink, '_blank');
+
+  // After 2s, if app didn't open (desktop browser), show fallback simulation
+  setTimeout(() => {
+    simulatePayment(app === 'gpay' ? 'Google Pay' : app === 'phonepe' ? 'PhonePe' : app === 'paytm' ? 'Paytm' : 'BHIM UPI');
+  }, 2000);
+}
+
+// UPI ID entry
+function payWithUpiId() {
+  const upiId = document.getElementById('upiIdInput').value.trim();
+  if (!upiId || !upiId.includes('@')) {
+    document.getElementById('upiIdInput').style.borderColor = '#ef4444';
+    document.getElementById('upiIdInput').placeholder = '❌ Enter valid UPI ID (e.g. name@upi)';
+    return;
+  }
+  document.getElementById('upiIdInput').style.borderColor = '#10b981';
+  simulatePayment('UPI — ' + upiId);
+}
+
+// Card payment
+function payWithCard() {
+  const num    = document.getElementById('cardNumber').value.replace(/\s/g,'');
+  const expiry = document.getElementById('cardExpiry').value.trim();
+  const cvv    = document.getElementById('cardCvv').value.trim();
+  const name   = document.getElementById('cardName').value.trim();
+
+  if (num.length < 16) {
+    document.getElementById('cardNumber').style.borderColor = '#ef4444';
+    return;
+  }
+  if (!expiry || !cvv || !name) {
+    alert('Please fill all card details.');
+    return;
+  }
+  simulatePayment('Card ending ' + num.slice(-4));
+}
+
+// Net Banking
+function payWithNetBanking(bank) {
+  simulatePayment(bank + ' Net Banking');
+}
+
+// Card input formatters
+function formatCard(input) {
+  let v = input.value.replace(/\D/g, '').substring(0, 16);
+  input.value = v.match(/.{1,4}/g)?.join('  ') || v;
+}
+function formatExpiry(input) {
+  let v = input.value.replace(/\D/g, '').substring(0, 4);
+  if (v.length >= 2) v = v.substring(0,2) + ' / ' + v.substring(2);
+  input.value = v;
+}
+
+// Simulate payment processing then redirect to success
+function simulatePayment(method) {
+  closeAllSheets();
+
+  // Show full-screen processing overlay
+  const overlay = document.createElement('div');
+  overlay.id = 'payOverlay';
+  overlay.innerHTML = `
+    <div style="position:fixed;inset:0;background:linear-gradient(135deg,#6d28d9,#4f46e5);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-family:inherit;">
+      <div style="width:80px;height:80px;border:4px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:28px;"></div>
+      <p style="font-size:1.3rem;font-weight:800;margin:0 0 8px;">Processing Payment…</p>
+      <p style="font-size:.9rem;opacity:.75;margin:0;">via ${method}</p>
+      <p style="font-size:1.1rem;font-weight:700;margin:20px 0 0;">₹${currentBill ? currentBill.total_amount.toFixed(2) : ''}</p>
+    </div>
+    <style>@keyframes spin{to{transform:rotate(360deg)}}</style>`;
+  document.body.appendChild(overlay);
+
+  // Record payment in DB, then go to success page
+  const payMethod = method.includes('Card') ? 'Debit Card' :
+                    method.includes('Net Banking') ? 'Net Banking' : 'UPI';
+  if (currentBill && currentBill.id) {
+    fetch(API_BASE + '/payments/pay', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bill_id: currentBill.id, payment_method: payMethod })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.receipt) sessionStorage.setItem('receipt', JSON.stringify(data.receipt));
+      setTimeout(() => { window.location.href = 'payment-success.html'; }, 1800);
+    })
+    .catch(() => {
+      setTimeout(() => { window.location.href = 'payment-success.html'; }, 1800);
+    });
+  } else {
+    setTimeout(() => { window.location.href = 'payment-success.html'; }, 1800);
+  }
+}
+</script>
+</body>
+</html>
