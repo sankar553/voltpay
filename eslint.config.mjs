@@ -13,7 +13,6 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     // V1 prototype kept for reference only
-    "legacy/**",
   ]),
 ]);
 

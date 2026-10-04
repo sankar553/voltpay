@@ -10,7 +10,7 @@ VoltPay V2 is a secure, installable web app (PWA) built with Next.js. The full p
 
 | Phase | Scope                                                               | Status  |
 | ----- | ------------------------------------------------------------------- | ------- |
-| 0     | Housekeeping: V1 archived to `legacy/v1/` (tag `v1.0`)              | ✅ Done |
+| 0     | Housekeeping: V1 removed from the tree (kept in git tag `v1.0`)     | ✅ Done |
 | 1     | Foundation: Next.js 16, Postgres + Drizzle, Better Auth, roles, CI  | ✅ Done |
 | 2     | Core flow: meters, signed QR, scanner, bills, Razorpay, receipts    | ✅ Done |
 | 3     | Customer features: link meters, bills, usage chart, complaints      | ✅ Done |
@@ -93,7 +93,6 @@ src/
   server/         server-only logic: authorization helpers, services
   proxy.ts        optimistic auth redirect for protected routes
 tests/unit/       Vitest unit tests
-legacy/v1/        original V1 prototype (Express + SQLite), reference only
 docs/             V2 plan, original plan PDF, legal notes
 ```
 
