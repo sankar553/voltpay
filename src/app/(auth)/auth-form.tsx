@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
 import { Button } from "@/components/ui/button";
+import { onSubmitWith } from "@/lib/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signIn, signUp } from "@/lib/auth-client";
@@ -44,7 +45,7 @@ export function AuthForm({ mode, next }: { mode: Mode; next?: string }) {
   }
 
   return (
-    <form action={onSubmit} className="grid gap-4">
+    <form onSubmit={onSubmitWith(onSubmit)} className="grid gap-4">
       {mode === "signup" && (
         <div className="grid gap-2">
           <Label htmlFor="name">Full name</Label>

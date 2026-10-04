@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import { updateProfileAction } from "@/app/actions/account";
 import { FormError } from "@/components/account/form-error";
 import { Button } from "@/components/ui/button";
+import { onSubmitWith } from "@/lib/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -36,7 +37,7 @@ export function ProfileForm(props: {
   }
 
   return (
-    <form action={submit} className="grid gap-4">
+    <form onSubmit={onSubmitWith(submit)} className="grid gap-4">
       <div className="grid gap-2">
         <Label htmlFor="name">Full name</Label>
         <Input id="name" name="name" defaultValue={props.name} maxLength={100} required />

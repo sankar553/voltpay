@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 
 import { FormError } from "@/components/account/form-error";
 import { Button } from "@/components/ui/button";
+import { onSubmitWith } from "@/lib/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
@@ -39,7 +40,7 @@ export function PasswordForm() {
   }
 
   return (
-    <form id="password-form" action={submit} className="grid gap-4">
+    <form id="password-form" onSubmit={onSubmitWith(submit)} className="grid gap-4">
       <div className="grid gap-2">
         <Label htmlFor="currentPassword">Current password</Label>
         <Input

@@ -14,8 +14,8 @@ VoltPay V2 is a secure, installable web app (PWA) built with Next.js. The full p
 | 1     | Foundation: Next.js 16, Postgres + Drizzle, Better Auth, roles, CI | ✅ Done |
 | 2     | Core flow: meters, signed QR, scanner, bills, Razorpay, receipts   | ✅ Done |
 | 3     | Customer features: link meters, bills, usage chart, complaints     | ✅ Done |
-| 4     | Admin console                                                      | ⏳ Next |
-| 5     | PWA & reminders                                                    | —       |
+| 4     | Admin console: meters, billing cycle, tariffs, complaints, audit   | ✅ Done |
+| 5     | PWA & reminders (contact inbox)                                    | ⏳ Next |
 | 6     | Hardening & launch                                                 | —       |
 
 ## Tech stack
@@ -51,7 +51,7 @@ npm run dev        # http://localhost:3000
 1. Sign in as admin → **Admin → View meter QR codes**, then scan one from your phone (the camera needs HTTPS or `localhost`; on a laptop you can also use the consumer-number box on `/scan`, e.g. `VP-2024-000101`).
 2. Review the bill and pay. Until real Razorpay keys are set in `.env.local`, a **simulated checkout** is used (development only; it is disabled in production). With real test keys, the Razorpay checkout opens (use Razorpay's [test cards / UPI](https://razorpay.com/docs/payments/payments/test-card-details/)).
 3. You'll land on the receipt page with a PDF download.
-4. Bills are consumed by paying. Run `npm run db:seed -- --fresh` to reset the demo data.
+4. Bills are consumed by paying. Run `npm run db:seed -- --fresh` to reset the demo data, or sign in as admin and use **Billing → Run billing cycle** to create the next bills.
 
 ### Demo accounts (local only)
 
@@ -79,7 +79,7 @@ In production, set `SEED_*` variables instead; the seed script refuses default p
 
 ```
 src/
-  app/            routes: /, /login, /signup, /dashboard, /meters/*, /payments, /complaints, /profile, /scan, /m/[code], /receipts/[id], /admin, /admin/qr, /api/auth/*, /api/webhooks/razorpay
+  app/            routes: /, /login, /signup, /dashboard, /meters/*, /payments, /complaints, /profile, /scan, /m/[code], /receipts/[id], /admin/* (meters, billing, bills, payments, tariffs, complaints, audit, qr), /api/auth/*, /api/webhooks/razorpay
   components/     UI (components/ui = shadcn-style primitives)
   db/             Drizzle schema, migrations, connection
   lib/            auth (server + client), env validation, utils

@@ -16,19 +16,19 @@ export default async function AdminQrPage() {
   const items = await Promise.all(
     rows.map(async (m) => ({
       ...m,
-      url: qrUrl(m.qrToken),
       svg: await QRCode.toString(qrUrl(m.qrToken), { type: "svg", margin: 1, width: 180 }),
     })),
   );
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-10">
-      <Link href="/admin" className="text-sm text-primary hover:underline">
-        ← Admin
+    <>
+      <Link href="/admin/meters" className="text-sm text-primary hover:underline">
+        ← Meters
       </Link>
       <h1 className="mt-2 text-3xl font-bold tracking-tight">Meter QR codes</h1>
       <p className="mt-2 text-muted-foreground">
-        Print these as stickers. Each code is signed; forged or edited codes are rejected.
+        Print these as stickers. Each code is signed; forged or edited codes are rejected. Rotate a
+        meter’s code from its page if a sticker is damaged or copied.
       </p>
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((m) => (
@@ -48,6 +48,6 @@ export default async function AdminQrPage() {
           </figure>
         ))}
       </div>
-    </div>
+    </>
   );
 }

@@ -6,6 +6,7 @@ import { useState, useTransition } from "react";
 import { linkMeterAction } from "@/app/actions/account";
 import { FormError } from "@/components/account/form-error";
 import { Button } from "@/components/ui/button";
+import { onSubmitWith } from "@/lib/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
@@ -30,7 +31,7 @@ export function LinkMeterForm() {
   }
 
   return (
-    <form action={submit} className="grid gap-4">
+    <form onSubmit={onSubmitWith(submit)} className="grid gap-4">
       <div className="grid gap-2">
         <Label htmlFor="consumerNumber">Consumer number</Label>
         <Input
