@@ -1,0 +1,158 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="1400" viewBox="0 0 1320 1400" font-family="Segoe UI, Arial, sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="660" y="1372" text-anchor="middle" font-size="22" font-weight="700" fill="#111">VoltPay V2 - Database ER Diagram</text>
+<path d="M320,83 H520" fill="none" stroke="#666" stroke-width="2"/>
+<path d="M780,83 H880 V105 H980" fill="none" stroke="#666" stroke-width="2"/>
+<path d="M650,168 V260" fill="none" stroke="#666" stroke-width="2"/>
+<path d="M650,388 V500" fill="none" stroke="#666" stroke-width="2"/>
+<path d="M545,168 V225 H200 V260" fill="none" stroke="#666" stroke-width="2"/>
+<path d="M520,543 H200 V432" fill="none" stroke="#666" stroke-width="2"/>
+<path d="M560,716 V753 H210 V790" fill="none" stroke="#666" stroke-width="2"/>
+<path d="M720,716 V790" fill="none" stroke="#666" stroke-width="2"/>
+<path d="M520,921 H430 V845 H340" fill="none" stroke="#666" stroke-width="2"/>
+<path d="M520,943 H410 V865 H340" fill="none" stroke="#666" stroke-width="2"/>
+<path d="M800,899 H890 V833 H980" fill="none" stroke="#666" stroke-width="2"/>
+<path d="M660,1050 V1130" fill="none" stroke="#666" stroke-width="2"/>
+<path d="M520,1217 H30 V18 H650 V40" fill="none" stroke="#666" stroke-width="2"/>
+<path d="M980,325 H830 V149 H780" fill="none" stroke="#666" stroke-width="2"/>
+<rect x="520" y="40" width="260" height="128" rx="6" fill="#e8f0fe" stroke="#1a56c4" stroke-width="1.5"/>
+<path d="M520,72 V46 Q520,40 526,40 H774 Q780,40 780,46 V72 Z" fill="#1a56c4"/>
+<text x="532" y="61" font-size="15" font-weight="700" fill="#fff">user</text>
+<text x="532" y="88" font-size="13" fill="#222" font-weight="600">id  PK</text>
+<text x="532" y="110" font-size="13" fill="#222" font-weight="400">name</text>
+<text x="532" y="132" font-size="13" fill="#222" font-weight="400">email  unique</text>
+<text x="532" y="154" font-size="13" fill="#222" font-weight="400">role  customer | admin</text>
+<rect x="80" y="40" width="240" height="128" rx="6" fill="#e8f0fe" stroke="#1a56c4" stroke-width="1.5"/>
+<path d="M80,72 V46 Q80,40 86,40 H314 Q320,40 320,46 V72 Z" fill="#1a56c4"/>
+<text x="92" y="61" font-size="15" font-weight="700" fill="#fff">profiles</text>
+<text x="92" y="88" font-size="13" fill="#222" font-weight="600">user_id  PK, FK</text>
+<text x="92" y="110" font-size="13" fill="#222" font-weight="400">phone</text>
+<text x="92" y="132" font-size="13" fill="#222" font-weight="400">address</text>
+<text x="92" y="154" font-size="13" fill="#222" font-weight="400">notify_email</text>
+<rect x="980" y="40" width="280" height="128" rx="6" fill="#e8f0fe" stroke="#1a56c4" stroke-width="1.5"/>
+<path d="M980,72 V46 Q980,40 986,40 H1254 Q1260,40 1260,46 V72 Z" fill="#1a56c4"/>
+<text x="992" y="61" font-size="15" font-weight="700" fill="#fff">session · account</text>
+<text x="992" y="88" font-size="13" fill="#222" font-weight="600">id  PK</text>
+<text x="992" y="110" font-size="13" fill="#222" font-weight="600">user_id  FK</text>
+<text x="992" y="132" font-size="13" fill="#222" font-weight="400">token / provider data</text>
+<text x="992" y="154" font-size="13" fill="#222" font-weight="400">(+ verification, rate_limit)</text>
+<rect x="980" y="260" width="280" height="172" rx="6" fill="#fff1e0" stroke="#b85c00" stroke-width="1.5"/>
+<path d="M980,292 V266 Q980,260 986,260 H1254 Q1260,260 1260,266 V292 Z" fill="#b85c00"/>
+<text x="992" y="281" font-size="15" font-weight="700" fill="#fff">audit_log</text>
+<text x="992" y="308" font-size="13" fill="#222" font-weight="600">id  PK</text>
+<text x="992" y="330" font-size="13" fill="#222" font-weight="600">actor_user_id  FK (nullable)</text>
+<text x="992" y="352" font-size="13" fill="#222" font-weight="400">action</text>
+<text x="992" y="374" font-size="13" fill="#222" font-weight="400">entity / entity_id</text>
+<text x="992" y="396" font-size="13" fill="#222" font-weight="400">meta  (JSON)</text>
+<text x="992" y="418" font-size="13" fill="#222" font-weight="400">ip</text>
+<rect x="80" y="260" width="240" height="172" rx="6" fill="#fff1e0" stroke="#b85c00" stroke-width="1.5"/>
+<path d="M80,292 V266 Q80,260 86,260 H314 Q320,260 320,266 V292 Z" fill="#b85c00"/>
+<text x="92" y="281" font-size="15" font-weight="700" fill="#fff">complaints</text>
+<text x="92" y="308" font-size="13" fill="#222" font-weight="600">id  PK</text>
+<text x="92" y="330" font-size="13" fill="#222" font-weight="600">user_id  FK</text>
+<text x="92" y="352" font-size="13" fill="#222" font-weight="600">meter_id  FK</text>
+<text x="92" y="374" font-size="13" fill="#222" font-weight="400">category</text>
+<text x="92" y="396" font-size="13" fill="#222" font-weight="400">subject</text>
+<text x="92" y="418" font-size="13" fill="#222" font-weight="400">status</text>
+<rect x="520" y="260" width="260" height="128" rx="6" fill="#e6f6ec" stroke="#1f7a43" stroke-width="1.5"/>
+<path d="M520,292 V266 Q520,260 526,260 H774 Q780,260 780,266 V292 Z" fill="#1f7a43"/>
+<text x="532" y="281" font-size="15" font-weight="700" fill="#fff">user_meters  (link table)</text>
+<text x="532" y="308" font-size="13" fill="#222" font-weight="600">user_id  PK, FK</text>
+<text x="532" y="330" font-size="13" fill="#222" font-weight="600">meter_id  PK, FK</text>
+<text x="532" y="352" font-size="13" fill="#222" font-weight="400">relation  owner|family|tenant</text>
+<text x="532" y="374" font-size="13" fill="#222" font-weight="400">verified_at</text>
+<rect x="520" y="500" width="260" height="216" rx="6" fill="#e6f6ec" stroke="#1f7a43" stroke-width="1.5"/>
+<path d="M520,532 V506 Q520,500 526,500 H774 Q780,500 780,506 V532 Z" fill="#1f7a43"/>
+<text x="532" y="521" font-size="15" font-weight="700" fill="#fff">meters</text>
+<text x="532" y="548" font-size="13" fill="#222" font-weight="600">id  PK</text>
+<text x="532" y="570" font-size="13" fill="#222" font-weight="400">meter_number  unique</text>
+<text x="532" y="592" font-size="13" fill="#222" font-weight="400">consumer_number  unique</text>
+<text x="532" y="614" font-size="13" fill="#222" font-weight="400">qr_token  unique</text>
+<text x="532" y="636" font-size="13" fill="#222" font-weight="400">consumer_name</text>
+<text x="532" y="658" font-size="13" fill="#222" font-weight="400">address / district</text>
+<text x="532" y="680" font-size="13" fill="#222" font-weight="400">connection_type</text>
+<text x="532" y="702" font-size="13" fill="#222" font-weight="400">status</text>
+<rect x="80" y="790" width="260" height="150" rx="6" fill="#e6f6ec" stroke="#1f7a43" stroke-width="1.5"/>
+<path d="M80,822 V796 Q80,790 86,790 H334 Q340,790 340,796 V822 Z" fill="#1f7a43"/>
+<text x="92" y="811" font-size="15" font-weight="700" fill="#fff">meter_readings</text>
+<text x="92" y="838" font-size="13" fill="#222" font-weight="600">id  PK</text>
+<text x="92" y="860" font-size="13" fill="#222" font-weight="600">meter_id  FK</text>
+<text x="92" y="882" font-size="13" fill="#222" font-weight="400">reading_kwh</text>
+<text x="92" y="904" font-size="13" fill="#222" font-weight="400">read_at</text>
+<text x="92" y="926" font-size="13" fill="#222" font-weight="400">source</text>
+<rect x="520" y="790" width="280" height="260" rx="6" fill="#e6f6ec" stroke="#1f7a43" stroke-width="1.5"/>
+<path d="M520,822 V796 Q520,790 526,790 H794 Q800,790 800,796 V822 Z" fill="#1f7a43"/>
+<text x="532" y="811" font-size="15" font-weight="700" fill="#fff">bills</text>
+<text x="532" y="838" font-size="13" fill="#222" font-weight="600">id  PK</text>
+<text x="532" y="860" font-size="13" fill="#222" font-weight="400">bill_number  unique</text>
+<text x="532" y="882" font-size="13" fill="#222" font-weight="600">meter_id  FK</text>
+<text x="532" y="904" font-size="13" fill="#222" font-weight="600">tariff_id  FK</text>
+<text x="532" y="926" font-size="13" fill="#222" font-weight="600">previous_reading_id  FK</text>
+<text x="532" y="948" font-size="13" fill="#222" font-weight="600">current_reading_id  FK</text>
+<text x="532" y="970" font-size="13" fill="#222" font-weight="400">units</text>
+<text x="532" y="992" font-size="13" fill="#222" font-weight="400">total_paise</text>
+<text x="532" y="1014" font-size="13" fill="#222" font-weight="400">due_date</text>
+<text x="532" y="1036" font-size="13" fill="#222" font-weight="400">status</text>
+<rect x="980" y="790" width="280" height="172" rx="6" fill="#e6f6ec" stroke="#1f7a43" stroke-width="1.5"/>
+<path d="M980,822 V796 Q980,790 986,790 H1254 Q1260,790 1260,796 V822 Z" fill="#1f7a43"/>
+<text x="992" y="811" font-size="15" font-weight="700" fill="#fff">tariffs</text>
+<text x="992" y="838" font-size="13" fill="#222" font-weight="600">id  PK</text>
+<text x="992" y="860" font-size="13" fill="#222" font-weight="400">connection_type</text>
+<text x="992" y="882" font-size="13" fill="#222" font-weight="400">effective_from</text>
+<text x="992" y="904" font-size="13" fill="#222" font-weight="400">slabs  (JSON)</text>
+<text x="992" y="926" font-size="13" fill="#222" font-weight="400">fixed_charge_paise</text>
+<text x="992" y="948" font-size="13" fill="#222" font-weight="400">duty_bps</text>
+<rect x="520" y="1130" width="280" height="194" rx="6" fill="#e6f6ec" stroke="#1f7a43" stroke-width="1.5"/>
+<path d="M520,1162 V1136 Q520,1130 526,1130 H794 Q800,1130 800,1136 V1162 Z" fill="#1f7a43"/>
+<text x="532" y="1151" font-size="15" font-weight="700" fill="#fff">payments</text>
+<text x="532" y="1178" font-size="13" fill="#222" font-weight="600">id  PK</text>
+<text x="532" y="1200" font-size="13" fill="#222" font-weight="600">bill_id  FK</text>
+<text x="532" y="1222" font-size="13" fill="#222" font-weight="600">user_id  FK (null = guest)</text>
+<text x="532" y="1244" font-size="13" fill="#222" font-weight="400">amount_paise</text>
+<text x="532" y="1266" font-size="13" fill="#222" font-weight="400">gateway_order_id  unique</text>
+<text x="532" y="1288" font-size="13" fill="#222" font-weight="400">status</text>
+<text x="532" y="1310" font-size="13" fill="#222" font-weight="400">receipt_number  unique</text>
+<rect x="980" y="1130" width="280" height="150" rx="6" fill="#f0f0f0" stroke="#555555" stroke-width="1.5"/>
+<path d="M980,1162 V1136 Q980,1130 986,1130 H1254 Q1260,1130 1260,1136 V1162 Z" fill="#555555"/>
+<text x="992" y="1151" font-size="15" font-weight="700" fill="#fff">webhook_events</text>
+<text x="992" y="1178" font-size="13" fill="#222" font-weight="600">id  PK</text>
+<text x="992" y="1200" font-size="13" fill="#222" font-weight="400">event_id  unique</text>
+<text x="992" y="1222" font-size="13" fill="#222" font-weight="400">type</text>
+<text x="992" y="1244" font-size="13" fill="#222" font-weight="400">payload  (JSON)</text>
+<text x="992" y="1266" font-size="13" fill="#222" font-weight="400">(no foreign keys)</text>
+<text x="332" y="77" font-size="13" font-weight="700" fill="#c0392b" text-anchor="middle">1</text>
+<text x="508" y="77" font-size="13" font-weight="700" fill="#c0392b" text-anchor="middle">1</text>
+<text x="792" y="77" font-size="13" font-weight="700" fill="#c0392b" text-anchor="middle">1</text>
+<text x="968" y="99" font-size="13" font-weight="700" fill="#c0392b" text-anchor="middle">N</text>
+<text x="662" y="184" font-size="13" font-weight="700" fill="#c0392b" text-anchor="start">1</text>
+<text x="662" y="254" font-size="13" font-weight="700" fill="#c0392b" text-anchor="start">N</text>
+<text x="662" y="404" font-size="13" font-weight="700" fill="#c0392b" text-anchor="start">N</text>
+<text x="662" y="494" font-size="13" font-weight="700" fill="#c0392b" text-anchor="start">1</text>
+<text x="557" y="184" font-size="13" font-weight="700" fill="#c0392b" text-anchor="start">1</text>
+<text x="212" y="254" font-size="13" font-weight="700" fill="#c0392b" text-anchor="start">N</text>
+<text x="510" y="537" font-size="13" font-weight="700" fill="#c0392b" text-anchor="end">1</text>
+<text x="212" y="448" font-size="13" font-weight="700" fill="#c0392b" text-anchor="start">N</text>
+<text x="572" y="732" font-size="13" font-weight="700" fill="#c0392b" text-anchor="start">1</text>
+<text x="222" y="784" font-size="13" font-weight="700" fill="#c0392b" text-anchor="start">N</text>
+<text x="732" y="732" font-size="13" font-weight="700" fill="#c0392b" text-anchor="start">1</text>
+<text x="732" y="784" font-size="13" font-weight="700" fill="#c0392b" text-anchor="start">N</text>
+<text x="348" y="841" font-size="13" font-weight="700" fill="#c0392b" text-anchor="start">1</text>
+<text x="348" y="860" font-size="13" font-weight="700" fill="#c0392b" text-anchor="start">1</text>
+<text x="510" y="916" font-size="13" font-weight="700" fill="#c0392b" text-anchor="end">previous  N</text>
+<text x="510" y="958" font-size="13" font-weight="700" fill="#c0392b" text-anchor="end">current  N</text>
+<text x="810" y="893" font-size="13" font-weight="700" fill="#c0392b" text-anchor="start">N</text>
+<text x="970" y="827" font-size="13" font-weight="700" fill="#c0392b" text-anchor="end">1</text>
+<text x="672" y="1066" font-size="13" font-weight="700" fill="#c0392b" text-anchor="start">1</text>
+<text x="672" y="1124" font-size="13" font-weight="700" fill="#c0392b" text-anchor="start">N</text>
+<text x="510" y="1211" font-size="13" font-weight="700" fill="#c0392b" text-anchor="end">N</text>
+<text x="662" y="34" font-size="13" font-weight="700" fill="#c0392b" text-anchor="start">1</text>
+<text x="40" y="1190" font-size="13" font-weight="700" fill="#c0392b" text-anchor="start">payer (null for guests)</text>
+<text x="970" y="319" font-size="13" font-weight="700" fill="#c0392b" text-anchor="end">N</text>
+<text x="790" y="143" font-size="13" font-weight="700" fill="#c0392b" text-anchor="start">1</text>
+<rect x="980" y="480" width="16" height="16" rx="3" fill="#e8f0fe" stroke="#1a56c4" stroke-width="1.5"/><text x="1004" y="493" font-size="13" fill="#222">Login / users (Better Auth + profile)</text>
+<rect x="980" y="506" width="16" height="16" rx="3" fill="#e6f6ec" stroke="#1f7a43" stroke-width="1.5"/><text x="1004" y="519" font-size="13" fill="#222">Billing core</text>
+<rect x="980" y="532" width="16" height="16" rx="3" fill="#fff1e0" stroke="#b85c00" stroke-width="1.5"/><text x="1004" y="545" font-size="13" fill="#222">Support &amp; audit</text>
+<rect x="980" y="558" width="16" height="16" rx="3" fill="#f0f0f0" stroke="#555555" stroke-width="1.5"/><text x="1004" y="571" font-size="13" fill="#222">Standalone</text>
+<text x="980" y="600" font-size="13" fill="#222">1 = one row   N = many rows</text>
+<text x="980" y="620" font-size="13" fill="#222">PK = primary key   FK = foreign key</text>
+</svg>
