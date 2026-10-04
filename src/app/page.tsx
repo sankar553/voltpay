@@ -37,10 +37,10 @@ export default function HomePage() {
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Button asChild size="lg">
-            <Link href="/signup">Get started</Link>
+            <Link href="/scan">Scan a meter</Link>
           </Button>
           <Button asChild size="lg" variant="outline">
-            <Link href="/login">I have an account</Link>
+            <Link href="/signup">Create account</Link>
           </Button>
         </div>
       </section>

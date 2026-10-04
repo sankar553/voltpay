@@ -105,10 +105,32 @@ export default async function MeterBillPage(props: PageProps<"/m/[code]">) {
           {!owner && (
             <p className="text-xs text-muted-foreground">
               Details are partly hidden.{" "}
-              <Link href="/login" className="text-primary hover:underline">
-                Sign in
-              </Link>{" "}
-              as the meter holder to see everything.
+              {session ? (
+                <>
+                  Is this your meter?{" "}
+                  <Link href="/meters/link" className="text-primary hover:underline">
+                    Link it to your account
+                  </Link>
+                  .
+                </>
+              ) : (
+                <>
+                  <Link href="/login" className="text-primary hover:underline">
+                    Sign in
+                  </Link>{" "}
+                  as the meter holder to see everything.
+                </>
+              )}
+            </p>
+          )}
+          {owner && (
+            <p className="flex gap-4 text-xs">
+              <Link href={`/meters/${meter.id}/bills`} className="text-primary hover:underline">
+                Bill history
+              </Link>
+              <Link href={`/meters/${meter.id}/usage`} className="text-primary hover:underline">
+                Usage
+              </Link>
             </p>
           )}
         </CardHeader>

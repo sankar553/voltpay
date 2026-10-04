@@ -12,9 +12,9 @@ VoltPay V2 is a secure, installable web app (PWA) built with Next.js. The full p
 | ----- | ------------------------------------------------------------------ | ------- |
 | 0     | Housekeeping: V1 archived to `legacy/v1/` (tag `v1.0`)             | ✅ Done |
 | 1     | Foundation: Next.js 16, Postgres + Drizzle, Better Auth, roles, CI | ✅ Done |
-| 2     | Core flow: meters, signed QR, scanner, bills, Razorpay, receipts   | ⏳ Next |
-| 3     | Customer features                                                  | —       |
-| 4     | Admin console                                                      | —       |
+| 2     | Core flow: meters, signed QR, scanner, bills, Razorpay, receipts   | ✅ Done |
+| 3     | Customer features: link meters, bills, usage chart, complaints     | ✅ Done |
+| 4     | Admin console                                                      | ⏳ Next |
 | 5     | PWA & reminders                                                    | —       |
 | 6     | Hardening & launch                                                 | —       |
 
@@ -79,7 +79,7 @@ In production, set `SEED_*` variables instead; the seed script refuses default p
 
 ```
 src/
-  app/            routes: /, /login, /signup, /dashboard, /scan, /m/[code], /receipts/[id], /admin, /admin/qr, /api/auth/*, /api/webhooks/razorpay
+  app/            routes: /, /login, /signup, /dashboard, /meters/*, /payments, /complaints, /profile, /scan, /m/[code], /receipts/[id], /admin, /admin/qr, /api/auth/*, /api/webhooks/razorpay
   components/     UI (components/ui = shadcn-style primitives)
   db/             Drizzle schema, migrations, connection
   lib/            auth (server + client), env validation, utils
