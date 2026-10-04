@@ -1,7 +1,9 @@
 import { Gauge, History, QrCode } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireUser } from "@/server/authz";
 
@@ -28,6 +30,12 @@ export default async function DashboardPage() {
       </div>
       <p className="mt-2 text-muted-foreground">Signed in as {user.email}</p>
 
+      <Button asChild size="lg" className="mt-6">
+        <Link href="/scan">
+          <QrCode aria-hidden /> Scan a meter &amp; pay
+        </Link>
+      </Button>
+
       <div className="mt-8 grid gap-4 md:grid-cols-3">
         {upcoming.map(({ icon: Icon, title, text }) => (
           <Card key={title}>
@@ -37,7 +45,7 @@ export default async function DashboardPage() {
               <CardDescription>{text}</CardDescription>
             </CardHeader>
             <CardContent>
-              <Badge variant="outline">Coming in Phase 2–3</Badge>
+              <Badge variant="outline">Coming in Phase 3</Badge>
             </CardContent>
           </Card>
         ))}

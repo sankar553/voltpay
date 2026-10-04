@@ -24,6 +24,10 @@ jobs:
       BETTER_AUTH_SECRET: ci-only-secret-not-used-anywhere-else-0123456789
       BETTER_AUTH_URL: http://localhost:3000
       NEXT_PUBLIC_APP_URL: http://localhost:3000
+      QR_SIGNING_SECRET: ci-only-qr-secret-not-used-anywhere-else-0123456789
+      RAZORPAY_KEY_ID: rzp_test_placeholder
+      RAZORPAY_KEY_SECRET: placeholder
+      RAZORPAY_WEBHOOK_SECRET: placeholder
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5

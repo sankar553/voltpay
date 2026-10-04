@@ -11,5 +11,12 @@ export default defineConfig({
   test: {
     include: ["tests/unit/**/*.test.ts"],
     environment: "node",
+    env: {
+      DATABASE_URL: "postgres://test:test@localhost:5432/test",
+      BETTER_AUTH_SECRET: "t".repeat(32),
+      BETTER_AUTH_URL: "http://localhost:3000",
+      NEXT_PUBLIC_APP_URL: "http://localhost:3000",
+      QR_SIGNING_SECRET: "q".repeat(32),
+    },
   },
 });

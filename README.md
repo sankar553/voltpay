@@ -24,7 +24,7 @@ Next.js 16 (App Router, React 19) · TypeScript · Tailwind CSS 4 + shadcn/ui-st
 
 ## Getting started
 
-**Prerequisites:** Node.js 24+, and either Docker Desktop (for the local database) or a free [Neon](https://neon.tech) Postgres database.
+**Prerequisites:** Node.js 24+ and a free [Neon](https://neon.tech) Postgres database (create a project, then copy its connection string).
 
 ```bash
 # 1. Install dependencies
@@ -32,19 +32,26 @@ npm install
 
 # 2. Configure environment
 cp .env.example .env.local
-#    then set BETTER_AUTH_SECRET (generate with: openssl rand -base64 32)
-#    and DATABASE_URL if you're not using the Docker default
+#    then set DATABASE_URL (Neon), BETTER_AUTH_SECRET and QR_SIGNING_SECRET
+#    (generate each with: openssl rand -base64 32)
+#    and, when you have them, RAZORPAY_KEY_ID / RAZORPAY_KEY_SECRET (test mode)
 
-# 3. Start Postgres (skip if using Neon)
-docker compose up -d
-
-# 4. Create tables and demo accounts
+# 3. Create tables, demo accounts and demo meters/bills
 npm run db:migrate
 npm run db:seed
 
-# 5. Run the app
+# 4. Run the app
 npm run dev        # http://localhost:3000
 ```
+
+> No Docker needed. A local Postgres via `docker compose up -d` also works if you prefer (use the `DATABASE_URL` from `docker-compose.yml`).
+
+### Trying the payment flow
+
+1. Sign in as admin → **Admin → View meter QR codes**, then scan one from your phone (the camera needs HTTPS or `localhost`; on a laptop you can also use the consumer-number box on `/scan`, e.g. `VP-2024-000101`).
+2. Review the bill and pay. Until real Razorpay keys are set in `.env.local`, a **simulated checkout** is used (development only; it is disabled in production). With real test keys, the Razorpay checkout opens (use Razorpay's [test cards / UPI](https://razorpay.com/docs/payments/payments/test-card-details/)).
+3. You'll land on the receipt page with a PDF download.
+4. Bills are consumed by paying. Run `npm run db:seed -- --fresh` to reset the demo data.
 
 ### Demo accounts (local only)
 
@@ -72,7 +79,7 @@ In production, set `SEED_*` variables instead; the seed script refuses default p
 
 ```
 src/
-  app/            routes: /, /login, /signup, /dashboard, /admin, /api/auth/*
+  app/            routes: /, /login, /signup, /dashboard, /scan, /m/[code], /receipts/[id], /admin, /admin/qr, /api/auth/*, /api/webhooks/razorpay
   components/     UI (components/ui = shadcn-style primitives)
   db/             Drizzle schema, migrations, connection
   lib/            auth (server + client), env validation, utils
@@ -87,6 +94,9 @@ docs/             V2 plan, original plan PDF, legal notes
 
 - Every protected page/action calls `requireUser()` / `requireAdmin()` from `src/server/authz.ts`. `proxy.ts` is only a fast redirect, not the security boundary.
 - Sessions use httpOnly cookies. Sign-in and sign-up are rate-limited and the limits are stored in Postgres.
+- QR codes are random 128-bit tokens signed with HMAC; forged or edited codes are rejected before any database lookup. People who aren't linked to a meter see a masked name and no street address.
+- Payment amounts always come from the database. Razorpay checkout signatures and webhooks are verified with HMAC; payment capture is idempotent and one captured payment per bill is enforced by a database index.
+- All money is stored as integer paise. Tariffs in the demo data are illustrative, not real DISCOM rates.
 - Secrets come only from environment variables, validated at startup by `src/lib/env.ts`.
 - Never commit `.env.local` or any `*.db` file. The V1 database contained real contact details and is deliberately git-ignored.
 

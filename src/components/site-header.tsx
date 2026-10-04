@@ -14,6 +14,9 @@ export async function SiteHeader() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
         <Logo />
         <nav className="flex items-center gap-1 sm:gap-2">
+          <Button asChild variant="ghost" size="sm">
+            <Link href="/scan">Scan &amp; pay</Link>
+          </Button>
           {session ? (
             <>
               {session.user.role === ROLES.admin && (

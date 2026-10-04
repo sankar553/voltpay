@@ -5,6 +5,7 @@ const valid = {
   BETTER_AUTH_SECRET: "x".repeat(32),
   BETTER_AUTH_URL: "http://localhost:3000",
   NEXT_PUBLIC_APP_URL: "http://localhost:3000",
+  QR_SIGNING_SECRET: "q".repeat(32),
 };
 
 async function loadWith(vars: Record<string, string | undefined>) {
