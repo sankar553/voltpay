@@ -1,6 +1,35 @@
+# dependencies
 node_modules/
-server/db/powerscan.db
-*.log
+
+# databases (never commit real data)
+*.db
+*.sqlite
+
+# Next.js / build output
+.next/
+out/
+build/
+*.tsbuildinfo
+next-env.d.ts
+
+# env files (secrets)
 .env
+.env*.local
+.env.*
+!.env.example
+
+# testing
+coverage/
+test-results/
+playwright-report/
+
+# PWA generated files
+public/sw.js
+public/sw.js.map
+public/swe-worker-*.js
+
+# logs / OS
+*.log
 .DS_Store
 Thumbs.db
+.vercel
