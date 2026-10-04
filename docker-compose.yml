@@ -1,0 +1,16 @@
+# Local PostgreSQL for development:  docker compose up -d
+services:
+  db:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: voltpay
+      POSTGRES_PASSWORD: voltpay
+      POSTGRES_DB: voltpay
+    ports:
+      - "5432:5432"
+    volumes:
+      - voltpay-pg:/var/lib/postgresql
+
+volumes:
+  voltpay-pg:
