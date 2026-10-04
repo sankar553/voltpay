@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { BillingCycleForm } from "@/components/admin/admin-forms";
+import { BillingCycleForm, DailyJobButton } from "@/components/admin/admin-forms";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { todayInIndia } from "@/lib/dues";
 import { requireAdmin } from "@/server/authz";
@@ -26,6 +26,19 @@ export default async function BillingPage() {
         </CardHeader>
         <CardContent>
           <BillingCycleForm today={todayInIndia()} />
+        </CardContent>
+      </Card>
+      <Card className="mt-6 max-w-2xl">
+        <CardHeader>
+          <CardTitle>Daily job</CardTitle>
+          <CardDescription>
+            Marks unpaid bills past their due date as overdue and emails reminders (3 days before
+            the due date, and once when overdue) to linked accounts that have reminders on. The same
+            job runs automatically every day on the live site; each reminder is sent only once.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <DailyJobButton />
         </CardContent>
       </Card>
       <p className="mt-4 text-sm text-muted-foreground">

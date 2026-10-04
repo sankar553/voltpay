@@ -1,7 +1,16 @@
-import { boolean, index, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  index,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
+} from "drizzle-orm/pg-core";
 
 import { user } from "./auth";
-import { meters } from "./billing";
+import { bills, meters } from "./billing";
 
 const timestamps = {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
@@ -52,3 +61,39 @@ export const profiles = pgTable("profiles", {
   notifyEmail: boolean("notify_email").default(true).notNull(),
   ...timestamps,
 });
+
+/** One row per reminder email sent, so each bill gets at most one "due soon" and one "overdue" email per user. */
+export const reminderLog = pgTable(
+  "reminder_log",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    billId: uuid("bill_id")
+      .notNull()
+      .references(() => bills.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    kind: text("kind").notNull(), // "due_soon" | "overdue"
+    sentAt: timestamp("sent_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("reminder_log_once_idx").on(t.billId, t.userId, t.kind)],
+);
+
+/** Messages from the public contact form (soft-deleted by admins, never hard-deleted from the app). */
+export const contactMessages = pgTable(
+  "contact_messages",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    email: text("email").notNull(),
+    message: text("message").notNull(),
+    ip: text("ip"),
+    readAt: timestamp("read_at", { withTimezone: true }),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    index("contact_messages_created_idx").on(t.createdAt),
+    index("contact_messages_ip_idx").on(t.ip, t.createdAt),
+  ],
+);

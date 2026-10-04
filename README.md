@@ -15,8 +15,8 @@ VoltPay V2 is a secure, installable web app (PWA) built with Next.js. The full p
 | 2     | Core flow: meters, signed QR, scanner, bills, Razorpay, receipts   | ✅ Done |
 | 3     | Customer features: link meters, bills, usage chart, complaints     | ✅ Done |
 | 4     | Admin console: meters, billing cycle, tariffs, complaints, audit   | ✅ Done |
-| 5     | PWA & reminders (contact inbox)                                    | ⏳ Next |
-| 6     | Hardening & launch                                                 | —       |
+| 5     | PWA (installable, offline page), reminder emails, contact inbox    | ✅ Done |
+| 6     | Hardening & launch                                                 | ⏳ Next |
 
 ## Tech stack
 
@@ -61,6 +61,12 @@ npm run dev        # http://localhost:3000
 | Customer | `customer@voltpay.test` | `Customer@12345` |
 
 In production, set `SEED_*` variables instead; the seed script refuses default passwords there.
+
+### Installable app & reminders
+
+- **Install as an app:** the service worker only registers in a production build, so try it with `npm run build && npm start`, then open the site on your phone/Chrome and choose _Install app_ (button in the footer) or _Add to Home Screen_. Offline, the app shows the last bill you viewed on that device (amount, due date, meter number only; cleared on sign-out).
+- **Reminder emails:** a daily job (Vercel Cron → `/api/cron/daily`, protected by `CRON_SECRET`) marks past-due bills overdue and emails customers 3 days before the due date and once when overdue (each at most once; customers can turn them off on their profile). Without `RESEND_API_KEY`, emails are printed to the server console in development. Admins can run the job from **Admin → Billing → Run daily job now**.
+- **Contact form:** public `/contact` page (rate-limited, honeypot) → **Admin → Inbox**.
 
 ## Scripts
 

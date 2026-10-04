@@ -26,6 +26,7 @@ export default async function AdminPage() {
       value: String(o.openComplaints),
       href: "/admin/complaints?status=open",
     },
+    { label: "Unread messages", value: String(o.unreadMessages), href: "/admin/inbox" },
   ];
 
   return (
@@ -35,7 +36,7 @@ export default async function AdminPage() {
         Meters, billing, payments and complaints at a glance.
       </p>
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {stats.map((s) => {
           const card = (
             <Card className="h-full gap-1">

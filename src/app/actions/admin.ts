@@ -5,11 +5,12 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { db } from "@/db";
-import { bills, complaints, meterReadings, meters, tariffs } from "@/db/schema";
+import { bills, complaints, contactMessages, meterReadings, meters, tariffs } from "@/db/schema";
 import { requireAdmin } from "@/server/authz";
 import { audit } from "@/server/audit";
 import { billNewReading, runBillingCycle } from "@/server/billing-cycle";
 import { generateQrToken } from "@/server/qr";
+import { runDailyJob, type DailyJobSummary } from "@/server/reminders";
 import { addDays } from "@/lib/dates";
 import { isUniqueViolation } from "@/lib/db-errors";
 import { todayInIndia } from "@/lib/dues";
@@ -344,5 +345,50 @@ export async function updateComplaintAction(
   });
   revalidatePath("/admin/complaints");
   revalidatePath("/complaints");
+  return { ok: true };
+}
+
+// ─── Daily job (overdue marking + reminder emails) ───────────────────────────
+
+export async function runDailyJobAction(): Promise<Result<{ summary: DailyJobSummary }>> {
+  const { user } = await requireAdmin();
+  const summary = await runDailyJob();
+  await audit({
+    actorUserId: user.id,
+    action: "reminders.run",
+    entity: "billing",
+    meta: { ...summary },
+  });
+  revalidatePath("/admin", "layout");
+  return { ok: true, summary };
+}
+
+// ─── Contact inbox ───────────────────────────────────────────────────────────
+
+export async function markContactReadAction(id: string): Promise<Result> {
+  await requireAdmin();
+  if (!z.uuid().safeParse(id).success) return fail("Message not found.");
+  await db.update(contactMessages).set({ readAt: new Date() }).where(eq(contactMessages.id, id));
+  revalidatePath("/admin", "layout");
+  return { ok: true };
+}
+
+/** Soft delete: the row stays in the database, it just leaves the inbox. */
+export async function deleteContactAction(id: string): Promise<Result> {
+  const { user } = await requireAdmin();
+  if (!z.uuid().safeParse(id).success) return fail("Message not found.");
+  const res = await db
+    .update(contactMessages)
+    .set({ deletedAt: new Date() })
+    .where(eq(contactMessages.id, id))
+    .returning({ id: contactMessages.id });
+  if (res.length === 0) return fail("Message not found.");
+  await audit({
+    actorUserId: user.id,
+    action: "contact.deleted",
+    entity: "contact_message",
+    entityId: id,
+  });
+  revalidatePath("/admin", "layout");
   return { ok: true };
 }

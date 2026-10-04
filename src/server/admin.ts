@@ -1,11 +1,12 @@
 import "server-only";
-import { and, count, desc, eq, gte, ilike, inArray, or, sql } from "drizzle-orm";
+import { and, count, desc, eq, gte, ilike, inArray, isNull, or, sql } from "drizzle-orm";
 
 import { db } from "@/db";
 import {
   auditLog,
   bills,
   complaints,
+  contactMessages,
   meters,
   payments,
   tariffs,
@@ -25,32 +26,43 @@ export async function adminOverview() {
   monthStart.setUTCDate(1);
   monthStart.setUTCHours(0, 0, 0, 0);
 
-  const [[customers], [meterCount], [outstanding], [collected], [openComplaints], recent] =
-    await Promise.all([
-      db.select({ n: count() }).from(user).where(eq(user.role, ROLES.customer)),
-      db.select({ n: count() }).from(meters),
-      db
-        .select({ n: count(), paise: sql<number>`coalesce(sum(${bills.totalPaise}), 0)::int` })
-        .from(bills)
-        .where(inArray(bills.status, ["unpaid", "overdue"])),
-      db
-        .select({ paise: sql<number>`coalesce(sum(${payments.amountPaise}), 0)::int` })
-        .from(payments)
-        .where(and(eq(payments.status, "captured"), gte(payments.capturedAt, monthStart))),
-      db.select({ n: count() }).from(complaints).where(eq(complaints.status, "open")),
-      db
-        .select({
-          payment: payments,
-          billNumber: bills.billNumber,
-          meterNumber: meters.meterNumber,
-        })
-        .from(payments)
-        .innerJoin(bills, eq(payments.billId, bills.id))
-        .innerJoin(meters, eq(bills.meterId, meters.id))
-        .where(eq(payments.status, "captured"))
-        .orderBy(desc(payments.capturedAt))
-        .limit(6),
-    ]);
+  const [
+    [customers],
+    [meterCount],
+    [outstanding],
+    [collected],
+    [openComplaints],
+    [unread],
+    recent,
+  ] = await Promise.all([
+    db.select({ n: count() }).from(user).where(eq(user.role, ROLES.customer)),
+    db.select({ n: count() }).from(meters),
+    db
+      .select({ n: count(), paise: sql<number>`coalesce(sum(${bills.totalPaise}), 0)::int` })
+      .from(bills)
+      .where(inArray(bills.status, ["unpaid", "overdue"])),
+    db
+      .select({ paise: sql<number>`coalesce(sum(${payments.amountPaise}), 0)::int` })
+      .from(payments)
+      .where(and(eq(payments.status, "captured"), gte(payments.capturedAt, monthStart))),
+    db.select({ n: count() }).from(complaints).where(eq(complaints.status, "open")),
+    db
+      .select({ n: count() })
+      .from(contactMessages)
+      .where(and(isNull(contactMessages.readAt), isNull(contactMessages.deletedAt))),
+    db
+      .select({
+        payment: payments,
+        billNumber: bills.billNumber,
+        meterNumber: meters.meterNumber,
+      })
+      .from(payments)
+      .innerJoin(bills, eq(payments.billId, bills.id))
+      .innerJoin(meters, eq(bills.meterId, meters.id))
+      .where(eq(payments.status, "captured"))
+      .orderBy(desc(payments.capturedAt))
+      .limit(6),
+  ]);
 
   return {
     customers: customers.n,
@@ -59,6 +71,7 @@ export async function adminOverview() {
     outstandingPaise: outstanding.paise,
     collectedPaise: collected.paise,
     openComplaints: openComplaints.n,
+    unreadMessages: unread.n,
     recent,
   };
 }
@@ -140,6 +153,15 @@ export async function listComplaintsAdmin(status: string | undefined) {
 
 export async function listTariffs() {
   return db.select().from(tariffs).orderBy(tariffs.connectionType, desc(tariffs.effectiveFrom));
+}
+
+export async function listContactMessages() {
+  return db
+    .select()
+    .from(contactMessages)
+    .where(isNull(contactMessages.deletedAt))
+    .orderBy(desc(contactMessages.createdAt))
+    .limit(200);
 }
 
 export async function listAudit() {

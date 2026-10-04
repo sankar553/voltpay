@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { BillStateBadge } from "@/components/bill-state-badge";
+import { OfflineBillSnapshot } from "@/components/pwa";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { billDisplayState, daysUntil, todayInIndia } from "@/lib/dues";
@@ -31,8 +32,20 @@ export default async function DashboardPage() {
     (m) => m.bill && billDisplayState(m.bill.status, m.bill.dueDate, today) === "due_soon",
   );
 
+  // Most urgent bill (earliest due date), remembered on-device for the offline page.
+  const urgent = [...payable].sort((a, b) => (a.bill!.dueDate < b.bill!.dueDate ? -1 : 1))[0];
+  const snapshot = urgent?.bill
+    ? {
+        meterNumber: urgent.meter.meterNumber,
+        billNumber: urgent.bill.billNumber,
+        amountPaise: urgent.bill.totalPaise,
+        dueDate: urgent.bill.dueDate,
+      }
+    : null;
+
   return (
     <>
+      <OfflineBillSnapshot bill={snapshot} />
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Hello, {user.name.split(" ")[0]}</h1>

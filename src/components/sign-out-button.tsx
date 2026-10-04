@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 
 import { Button } from "@/components/ui/button";
+import { LAST_BILL_KEY } from "@/components/pwa";
 import { signOut } from "@/lib/auth-client";
 
 export function SignOutButton() {
@@ -18,6 +19,9 @@ export function SignOutButton() {
       disabled={pending}
       onClick={() =>
         startTransition(async () => {
+          try {
+            localStorage.removeItem(LAST_BILL_KEY);
+          } catch {}
           await signOut();
           router.push("/");
           router.refresh();

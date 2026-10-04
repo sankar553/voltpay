@@ -8,7 +8,10 @@ import {
   cancelBillAction,
   createMeterAction,
   createTariffAction,
+  deleteContactAction,
+  markContactReadAction,
   rotateQrAction,
+  runDailyJobAction,
   runBillingCycleAction,
   updateComplaintAction,
   updateMeterAction,
@@ -486,5 +489,92 @@ export function ComplaintUpdateForm({
         {pending ? "Saving…" : "Save response"}
       </Button>
     </form>
+  );
+}
+
+// ─── Daily job ───────────────────────────────────────────────────────────────
+
+export function DailyJobButton() {
+  const { error, pending, run } = useAction();
+  const [summary, setSummary] = useState<string | null>(null);
+  return (
+    <div className="grid gap-3">
+      <Button
+        className="justify-self-start"
+        disabled={pending}
+        onClick={() => {
+          setSummary(null);
+          run(async () => {
+            const res = await runDailyJobAction();
+            if (res.ok) {
+              const s = res.summary;
+              const parts = [`${s.markedOverdue} bill(s) marked overdue`];
+              if (s.sent) parts.push(`${s.sent} email(s) sent`);
+              if (s.logged)
+                parts.push(`${s.logged} email(s) printed to the server console (no email key set)`);
+              if (s.skipped) parts.push(`${s.skipped} not sent (no email key set)`);
+              if (s.failed) parts.push(`${s.failed} failed — will retry on the next run`);
+              if (!s.sent && !s.logged && !s.skipped && !s.failed)
+                parts.push("no reminders needed");
+              setSummary(parts.join(" · "));
+            }
+            return res;
+          });
+        }}
+      >
+        {pending ? "Running…" : "Run daily job now"}
+      </Button>
+      <FormError message={error} />
+      {summary && (
+        <p role="status" className="rounded-md border bg-card px-3 py-2 text-sm">
+          {summary}
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ─── Contact inbox actions ───────────────────────────────────────────────────
+
+export function InboxActions({ id, unread }: { id: string; unread: boolean }) {
+  const { error, pending, run } = useAction();
+  const [confirm, setConfirm] = useState(false);
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      {unread && (
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={pending}
+          onClick={() => run(() => markContactReadAction(id))}
+        >
+          Mark as read
+        </Button>
+      )}
+      {confirm ? (
+        <>
+          <Button
+            size="sm"
+            variant="destructive"
+            disabled={pending}
+            onClick={() => run(() => deleteContactAction(id))}
+          >
+            Confirm delete
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => setConfirm(false)}>
+            Keep
+          </Button>
+        </>
+      ) : (
+        <Button size="sm" variant="ghost" onClick={() => setConfirm(true)}>
+          Delete
+        </Button>
+      )}
+      {error && (
+        <span role="alert" className="text-xs text-destructive">
+          {error}
+        </span>
+      )}
+    </div>
   );
 }

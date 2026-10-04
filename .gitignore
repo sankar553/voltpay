@@ -23,10 +23,8 @@ coverage/
 test-results/
 playwright-report/
 
-# PWA generated files
-public/sw.js
+# (public/sw.js is hand-written and tracked; ignore only generated source maps)
 public/sw.js.map
-public/swe-worker-*.js
 
 # logs / OS
 *.log

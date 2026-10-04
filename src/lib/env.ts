@@ -20,6 +20,10 @@ const envSchema = z.object({
   RAZORPAY_KEY_ID: z.string().default(""),
   RAZORPAY_KEY_SECRET: z.string().default(""),
   RAZORPAY_WEBHOOK_SECRET: z.string().default(""),
+  // Phase 5: reminder emails (Resend) and the secret that protects the daily cron route.
+  RESEND_API_KEY: z.string().default(""),
+  EMAIL_FROM: z.string().default("VoltPay <onboarding@resend.dev>"),
+  CRON_SECRET: z.string().default(""),
 });
 
 export type Env = z.infer<typeof envSchema>;
