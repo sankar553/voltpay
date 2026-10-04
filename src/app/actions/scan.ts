@@ -6,6 +6,7 @@ import { z } from "zod";
 import { db } from "@/db";
 import { meters } from "@/db/schema";
 import { buildQrCode } from "@/server/qr";
+import { clientIp, rateLimit } from "@/server/rate-limit";
 
 /**
  * Manual fallback when the camera can't read a sticker: look up by consumer number.
@@ -16,6 +17,11 @@ export async function lookupByConsumerNumber(
 ): Promise<{ ok: true; path: string } | { ok: false; error: string }> {
   const parsed = z.string().trim().min(5).max(40).safeParse(value);
   if (!parsed.success) return { ok: false, error: "Enter a valid consumer number." };
+
+  // Stops people from walking through consumer numbers to find meters.
+  const limit = await rateLimit(`scan:${await clientIp()}`, 20, 60);
+  if (!limit.ok)
+    return { ok: false, error: "Too many lookups. Please wait a minute and try again." };
 
   const [meter] = await db
     .select({ qrToken: meters.qrToken })

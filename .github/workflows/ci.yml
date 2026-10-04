@@ -42,3 +42,46 @@ jobs:
       - run: npm run db:migrate
       - run: npm run db:seed
       - run: npm run build
+
+  e2e:
+    runs-on: ubuntu-latest
+    needs: check
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: voltpay
+          POSTGRES_PASSWORD: voltpay
+          POSTGRES_DB: voltpay
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U voltpay"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      CI: "true"
+      DATABASE_URL: postgres://voltpay:voltpay@localhost:5432/voltpay
+      BETTER_AUTH_SECRET: ci-only-secret-not-used-anywhere-else-0123456789
+      BETTER_AUTH_URL: http://localhost:3000
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      QR_SIGNING_SECRET: ci-only-qr-secret-not-used-anywhere-else-0123456789
+      RAZORPAY_KEY_ID: rzp_test_placeholder
+      RAZORPAY_KEY_SECRET: placeholder
+      RAZORPAY_WEBHOOK_SECRET: placeholder
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run db:migrate
+      - run: npm run e2e
+      - uses: actions/upload-artifact@v5
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

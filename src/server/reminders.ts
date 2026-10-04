@@ -9,6 +9,7 @@ import { env } from "@/lib/env";
 import { formatDate, formatINR } from "@/lib/money";
 import { escapeHtml, reminderKind, REMIND_WITHIN_DAYS, type ReminderKind } from "@/lib/reminders";
 import { sendEmail } from "@/server/email";
+import { pruneThrottle } from "@/server/rate-limit";
 
 export type DailyJobSummary = {
   markedOverdue: number;
@@ -60,6 +61,8 @@ function buildEmail(input: {
 export async function runDailyJob(now: Date = new Date()): Promise<DailyJobSummary> {
   const today = todayInIndia(now);
   const summary: DailyJobSummary = { markedOverdue: 0, sent: 0, logged: 0, skipped: 0, failed: 0 };
+
+  await pruneThrottle();
 
   const marked = await db
     .update(bills)

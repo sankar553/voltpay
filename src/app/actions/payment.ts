@@ -8,6 +8,7 @@ import { bills, payments } from "@/db/schema";
 import { env } from "@/lib/env";
 import { getSession } from "@/server/authz";
 import { capturePayment, failPayment } from "@/server/payments/capture";
+import { clientIp, rateLimit } from "@/server/rate-limit";
 import {
   createGatewayOrder,
   verifyCheckoutSignature,
@@ -33,6 +34,10 @@ type StartResult =
 export async function startPayment(input: { billId: string }): Promise<StartResult> {
   const parsed = z.object({ billId: z.uuid() }).safeParse(input);
   if (!parsed.success) return { ok: false, error: "Invalid bill." };
+
+  // Each call creates a gateway order, so cap how fast one client can do it.
+  const limit = await rateLimit(`pay:${await clientIp()}`, 10, 60);
+  if (!limit.ok) return { ok: false, error: "Too many payment attempts. Please wait a minute." };
 
   const [bill] = await db.select().from(bills).where(eq(bills.id, parsed.data.billId)).limit(1);
   if (!bill) return { ok: false, error: "Bill not found." };

@@ -1,6 +1,6 @@
 /**
  * Seed demo data.  Usage:  npm run db:seed            (idempotent)
- *                          npm run db:seed -- --fresh   (wipe billing data and rebuild,
+ *                          npm run db:seed -- --fresh   (wipe billing + demo activity data and rebuild,
  *                                                        so the demo always has a bill to pay)
  *
  * Creates (if missing):
@@ -74,6 +74,11 @@ async function seedBilling(customerId: string | null) {
     for (const t of [
       s.payments,
       s.webhookEvents,
+      s.complaints,
+      s.contactMessages,
+      s.auditLog,
+      s.throttle,
+      s.rateLimit,
       s.bills,
       s.meterReadings,
       s.userMeters,

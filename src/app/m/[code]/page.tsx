@@ -108,14 +108,20 @@ export default async function MeterBillPage(props: PageProps<"/m/[code]">) {
               {session ? (
                 <>
                   Is this your meter?{" "}
-                  <Link href="/meters/link" className="text-primary hover:underline">
+                  <Link
+                    href="/meters/link"
+                    className="text-primary underline underline-offset-4 hover:no-underline"
+                  >
                     Link it to your account
                   </Link>
                   .
                 </>
               ) : (
                 <>
-                  <Link href="/login" className="text-primary hover:underline">
+                  <Link
+                    href="/login"
+                    className="text-primary underline underline-offset-4 hover:no-underline"
+                  >
                     Sign in
                   </Link>{" "}
                   as the meter holder to see everything.
@@ -125,10 +131,16 @@ export default async function MeterBillPage(props: PageProps<"/m/[code]">) {
           )}
           {owner && (
             <p className="flex gap-4 text-xs">
-              <Link href={`/meters/${meter.id}/bills`} className="text-primary hover:underline">
+              <Link
+                href={`/meters/${meter.id}/bills`}
+                className="text-primary underline underline-offset-4 hover:no-underline"
+              >
                 Bill history
               </Link>
-              <Link href={`/meters/${meter.id}/usage`} className="text-primary hover:underline">
+              <Link
+                href={`/meters/${meter.id}/usage`}
+                className="text-primary underline underline-offset-4 hover:no-underline"
+              >
                 Usage
               </Link>
             </p>

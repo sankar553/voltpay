@@ -31,3 +31,6 @@ public/sw.js.map
 .DS_Store
 Thumbs.db
 .vercel
+
+# Playwright signed-in sessions
+e2e/.auth/*.json

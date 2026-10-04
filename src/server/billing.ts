@@ -1,5 +1,5 @@
 import "server-only";
-import { and, desc, eq, inArray } from "drizzle-orm";
+import { and, asc, eq, inArray } from "drizzle-orm";
 
 import { db } from "@/db";
 import { bills, meters, userMeters } from "@/db/schema";
@@ -19,7 +19,7 @@ export async function getPayableBill(meterId: string) {
     .select()
     .from(bills)
     .where(and(eq(bills.meterId, meterId), inArray(bills.status, ["unpaid", "overdue"])))
-    .orderBy(desc(bills.periodEnd))
+    .orderBy(asc(bills.periodEnd))
     .limit(1);
   return bill ?? null;
 }

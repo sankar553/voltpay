@@ -1,4 +1,4 @@
-import { index, jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { index, integer, jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 import { user } from "./auth";
 
@@ -20,3 +20,10 @@ export const auditLog = pgTable(
     index("audit_log_created_at_idx").on(t.createdAt),
   ],
 );
+
+/** Fixed-window request counters used by `rateLimit()` (key = "<action>:<ip or user>"). */
+export const throttle = pgTable("throttle", {
+  key: text("key").primaryKey(),
+  count: integer("count").notNull(),
+  windowStart: timestamp("window_start", { withTimezone: true }).defaultNow().notNull(),
+});

@@ -8,15 +8,15 @@ VoltPay V2 is a secure, installable web app (PWA) built with Next.js. The full p
 
 ## Status
 
-| Phase | Scope                                                              | Status  |
-| ----- | ------------------------------------------------------------------ | ------- |
-| 0     | Housekeeping: V1 archived to `legacy/v1/` (tag `v1.0`)             | ✅ Done |
-| 1     | Foundation: Next.js 16, Postgres + Drizzle, Better Auth, roles, CI | ✅ Done |
-| 2     | Core flow: meters, signed QR, scanner, bills, Razorpay, receipts   | ✅ Done |
-| 3     | Customer features: link meters, bills, usage chart, complaints     | ✅ Done |
-| 4     | Admin console: meters, billing cycle, tariffs, complaints, audit   | ✅ Done |
-| 5     | PWA (installable, offline page), reminder emails, contact inbox    | ✅ Done |
-| 6     | Hardening & launch                                                 | ⏳ Next |
+| Phase | Scope                                                               | Status  |
+| ----- | ------------------------------------------------------------------- | ------- |
+| 0     | Housekeeping: V1 archived to `legacy/v1/` (tag `v1.0`)              | ✅ Done |
+| 1     | Foundation: Next.js 16, Postgres + Drizzle, Better Auth, roles, CI  | ✅ Done |
+| 2     | Core flow: meters, signed QR, scanner, bills, Razorpay, receipts    | ✅ Done |
+| 3     | Customer features: link meters, bills, usage chart, complaints      | ✅ Done |
+| 4     | Admin console: meters, billing cycle, tariffs, complaints, audit    | ✅ Done |
+| 5     | PWA (installable, offline page), reminder emails, contact inbox     | ✅ Done |
+| 6     | Hardening & launch: CSP, rate limits, E2E + a11y tests, deploy docs | ✅ Done |
 
 ## Tech stack
 
@@ -75,6 +75,7 @@ In production, set `SEED_*` variables instead; the seed script refuses default p
 | `npm run dev`                                     | Dev server with hot reload                         |
 | `npm run build` / `npm start`                     | Production build / serve                           |
 | `npm run lint` · `npm run typecheck` · `npm test` | Quality checks (also run in CI)                    |
+| `npm run e2e`                                     | Browser tests (Playwright) incl. accessibility     |
 | `npm run format`                                  | Format with Prettier                               |
 | `npm run db:generate`                             | Create a migration after editing `src/db/schema/*` |
 | `npm run db:migrate`                              | Apply migrations                                   |
@@ -96,10 +97,19 @@ legacy/v1/        original V1 prototype (Express + SQLite), reference only
 docs/             V2 plan, original plan PDF, legal notes
 ```
 
+## Testing
+
+`npm test` runs the unit tests. `npm run e2e` runs the browser tests against a dev server and re-seeds the database first, so point `DATABASE_URL` at a throw-away database, not data you care about. First time only: `npx playwright install chromium`. The suite covers the guest scan→pay→receipt flow, the customer area, the admin console, security headers, and WCAG A/AA accessibility checks on every main page.
+
+## Deploying
+
+See [`docs/DEPLOY.md`](docs/DEPLOY.md) (Vercel + Neon + Razorpay + Resend, backups) and [`docs/DEMO.md`](docs/DEMO.md) (the demo script).
+
 ## Security notes
 
 - Every protected page/action calls `requireUser()` / `requireAdmin()` from `src/server/authz.ts`. `proxy.ts` is only a fast redirect, not the security boundary.
-- Sessions use httpOnly cookies. Sign-in and sign-up are rate-limited and the limits are stored in Postgres.
+- Sessions use httpOnly cookies. Sign-in, sign-up, meter lookups and payment creation are rate-limited, with the limits stored in Postgres.
+- A per-request-nonce Content-Security-Policy (set in `src/proxy.ts`) blocks injected scripts; Razorpay's checkout is explicitly allowed.
 - QR codes are random 128-bit tokens signed with HMAC; forged or edited codes are rejected before any database lookup. People who aren't linked to a meter see a masked name and no street address.
 - Payment amounts always come from the database. Razorpay checkout signatures and webhooks are verified with HMAC; payment capture is idempotent and one captured payment per bill is enforced by a database index.
 - All money is stored as integer paise. Tariffs in the demo data are illustrative, not real DISCOM rates.
